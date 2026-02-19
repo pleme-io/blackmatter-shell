@@ -194,6 +194,12 @@ in {
     home.packages = with pkgs;
       [
         cfg.package
+        # Core tools (required by aliases, functions, plugins)
+        git
+        curl
+        python3
+        openssl
+
         # Core replacements
         bat # Better cat - syntax highlighting
         eza # Better ls - icons, git integration

@@ -75,6 +75,13 @@
   # All tools bundled with blzsh
   toolsPath = lib.makeBinPath (with pkgs;
     [
+      # ── Core tools (required by aliases, functions, plugins) ──
+      git
+      curl
+      python3
+      openssl
+
+      # ── Rust CLI replacements ──
       bat
       eza
       fd
@@ -108,6 +115,8 @@
       watchexec
       miniserve
       yazi
+
+      # ── Shell infrastructure ──
       direnv
       nix-direnv
       starship
@@ -185,9 +194,16 @@
     ln -s ${zshrc} $out/.zshrc
   '';
 in
-  pkgs.writeShellScriptBin "blzsh" ''
+  (pkgs.writeShellScriptBin "blzsh" ''
     export ZDOTDIR="${zdotdir}"
     export DIRENV_CONFIG="${direnvConfigDir}"
     export PATH="${toolsPath}:$PATH"
     exec ${pkgs.zsh}/bin/zsh "$@"
-  ''
+  '').overrideAttrs {
+    meta = {
+      description = "Blackmatter Shell - curated zsh distribution with 7 plugins and 35+ bundled tools";
+      homepage = "https://github.com/pleme-io/blackmatter-shell";
+      license = lib.licenses.mit;
+      mainProgram = "blzsh";
+    };
+  }

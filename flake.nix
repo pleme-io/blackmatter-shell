@@ -15,18 +15,24 @@
     blackmatter-nvim,
   }: let
     systems = ["x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin"];
+    linuxSystems = ["x86_64-linux" "aarch64-linux"];
     forAllSystems = f: nixpkgs.lib.genAttrs systems (s: f nixpkgs.legacyPackages.${s});
+
+    mkBlzsh = pkgs: import ./package.nix { inherit pkgs blackmatter-nvim; lib = nixpkgs.lib; };
+    mkContainer = pkgs: import ./container.nix { inherit pkgs blackmatter-nvim; lib = nixpkgs.lib; };
   in {
-    packages = forAllSystems (pkgs: {
-      default = import ./package.nix {
-        inherit pkgs blackmatter-nvim;
-        lib = nixpkgs.lib;
-      };
-      blzsh = import ./package.nix {
-        inherit pkgs blackmatter-nvim;
-        lib = nixpkgs.lib;
-      };
-    });
+    packages =
+      forAllSystems (pkgs: {
+        default = mkBlzsh pkgs;
+        blzsh = mkBlzsh pkgs;
+      })
+      # Container images are Linux-only (OCI containers are always Linux)
+      // nixpkgs.lib.genAttrs linuxSystems (system:
+        let pkgs = nixpkgs.legacyPackages.${system}; in {
+          default = mkBlzsh pkgs;
+          blzsh = mkBlzsh pkgs;
+          container = mkContainer pkgs;
+        });
 
     homeManagerModules.default = import ./module;
 

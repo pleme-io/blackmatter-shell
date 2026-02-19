@@ -62,9 +62,10 @@ if command -v eza &> /dev/null; then
   }
 fi
 
-# fd → find (keeping find available)
+# fd — use directly as 'fd'; do NOT alias find→fd.
+# fd has incompatible flag syntax with POSIX find (no -name, -type f, -exec, etc.),
+# which breaks scripts, tools, and IDE integrations that rely on standard find flags.
 if command -v fd &> /dev/null; then
-  alias find='fd'  # fd has simpler syntax and is faster
   alias fdfind='fd'
 fi
 

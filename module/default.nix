@@ -142,13 +142,20 @@ with lib; let
     fi
 
     # ===== BASIC ALIASES =====
-    # Core tool replacements (match zsh behavior)
-    alias ls='eza --icons --group-directories-first'
-    alias ll='eza -l --icons --group-directories-first'
-    alias la='eza -la --icons --group-directories-first'
-    alias cat='bat --style=plain --paging=never'
-    alias find='fd'
-    alias grep='rg'
+    # Only set aliases in interactive shells.
+    # BASH_ENV causes this file to be sourced in ALL bash invocations (including
+    # non-interactive ones used by tools like Claude Code), so aliasing find/grep/diff
+    # to incompatible replacements would silently break script execution.
+    if [[ $- == *i* ]]; then
+      alias ls='eza --icons --group-directories-first'
+      alias ll='eza -l --icons --group-directories-first'
+      alias la='eza -la --icons --group-directories-first'
+      alias cat='bat --style=plain --paging=never'
+      # Note: find and grep are intentionally NOT aliased here.
+      # fd and rg have incompatible flag syntax with POSIX find/grep,
+      # which breaks scripts and tool integrations that rely on standard flags.
+      # Use fd/rg directly from the command line when you want them.
+    fi
   '';
 
   # Generate .bash_profile to ensure bashrc is loaded in login shells

@@ -197,7 +197,7 @@ in {
         # Core tools (required by aliases, functions, plugins)
         git
         curl
-        python3
+        python312
         openssl
 
         # Core replacements

@@ -197,7 +197,7 @@ in {
         # Core tools (required by aliases, functions, plugins)
         git
         curl
-        python312
+        (lib.lowPrio python312) # lowPrio: avoids bin/idle conflict with python312.withPackages from nvim LSP
         openssl
 
         # Core replacements

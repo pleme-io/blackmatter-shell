@@ -1,0 +1,1 @@
+nix search nixpkgs "$1" --json | jq -r '.[] | "\(.pname) (\(.version))\n  \(.description)\n"'

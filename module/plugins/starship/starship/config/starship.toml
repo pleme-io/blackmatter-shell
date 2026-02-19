@@ -1,0 +1,212 @@
+# Starship Prompt - Minimal Nord-themed configuration
+# Snowflake and git status only
+
+# Format - Minimal prompt structure
+format = """
+$nix_shell\
+$hostname$directory\
+$git_branch\
+$git_status\
+$character"""
+
+# Right prompt - disabled
+right_format = ""
+
+# Continuation prompt
+continuation_prompt = "[❄](bold #5E81AC) "
+
+# Scan timeout - performance
+scan_timeout = 10
+command_timeout = 100
+add_newline = true
+
+# ===== CHARACTER (SNOWFLAKE) =====
+[character]
+format = "$symbol "
+success_symbol = "[❄](bold #88C0D0)" # Nord frost (snowflake)
+error_symbol = "[❄](bold #BF616A)" # Nord red (error snowflake)
+vicmd_symbol = "[❄](bold #A3BE8C)" # Nord green for vim normal mode
+vimcmd_replace_one_symbol = "[❄](bold #B48EAD)" # Nord purple
+vimcmd_replace_symbol = "[❄](bold #B48EAD)"
+vimcmd_visual_symbol = "[❄](bold #EBCB8B)" # Nord yellow
+
+# ===== GIT BRANCH =====
+[git_branch]
+disabled = false
+format = " [$symbol$branch]($style)"
+symbol = " "
+style = "#A3BE8C" # Nord green
+truncation_length = 20
+truncation_symbol = "…"
+only_attached = false
+
+# ===== GIT STATUS =====
+[git_status]
+disabled = false
+format = '[$all_status$ahead_behind]($style) '
+style = "bold #EBCB8B" # Nord yellow
+stashed = "$$"
+ahead = "⇡${count}"
+behind = "⇣${count}"
+diverged = "⇕${ahead_count}⇣${behind_count}"
+conflicted = "="
+deleted = "✘"
+renamed = "»"
+modified = "!"
+staged = "+"
+untracked = "?"
+up_to_date = ""
+
+# ===== DISABLE ALL OTHER MODULES =====
+[username]
+disabled = true
+
+[hostname]
+disabled = false
+format = "[$hostname](dimmed $style) · "
+style = "#88C0D0" # Nord frost (dimmed for subtlety)
+ssh_only = false
+trim_at = "."
+
+[directory]
+disabled = false
+format = "[$path]($style)"
+style = "bold #81A1C1" # Nord frost
+truncation_length = 3
+truncate_to_repo = true
+truncation_symbol = "…/"
+home_symbol = "~"
+read_only = " 󰌾"
+read_only_style = "#BF616A"
+
+[git_commit]
+disabled = true
+
+[git_state]
+disabled = true
+
+[git_metrics]
+disabled = true
+
+[fill]
+disabled = true
+
+[time]
+disabled = true
+
+[cmd_duration]
+disabled = false
+min_time = 2_000
+format = "[$duration]($style) "
+style = "bold #D08770"
+
+[jobs]
+disabled = true
+
+[golang]
+disabled = true
+
+[rust]
+disabled = true
+
+[python]
+disabled = true
+
+[nodejs]
+disabled = true
+
+[ruby]
+disabled = true
+
+[lua]
+disabled = true
+
+[nix_shell]
+disabled = false
+format = '[$symbol]($style) '
+symbol = "❄"
+style = "bold #88C0D0"
+
+[docker_context]
+disabled = true
+
+[kubernetes]
+disabled = true
+
+[terraform]
+disabled = true
+
+[aws]
+disabled = true
+
+[gcloud]
+disabled = true
+
+[c]
+disabled = true
+
+[cmake]
+disabled = true
+
+[java]
+disabled = true
+
+[dart]
+disabled = true
+
+[elixir]
+disabled = true
+
+[elm]
+disabled = true
+
+[erlang]
+disabled = true
+
+[haskell]
+disabled = true
+
+[kotlin]
+disabled = true
+
+[nim]
+disabled = true
+
+[ocaml]
+disabled = true
+
+[perl]
+disabled = true
+
+[php]
+disabled = true
+
+[swift]
+disabled = true
+
+[zig]
+disabled = true
+
+[package]
+disabled = true
+
+[conda]
+disabled = true
+
+[env_var]
+disabled = true
+
+[shell]
+disabled = true
+
+[shlvl]
+disabled = true
+
+[memory_usage]
+disabled = true
+
+[battery]
+disabled = true
+
+[status]
+disabled = true

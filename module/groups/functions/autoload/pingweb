@@ -1,0 +1,1 @@
+curl -o /dev/null -s -w "Response time: %{time_total}s\n" "$1"

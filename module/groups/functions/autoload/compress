@@ -1,0 +1,8 @@
+if [ -z "$1" ]; then
+  echo "Usage: compress <file|directory> [output.tar.gz]"
+  return 1
+fi
+
+local output="${2:-${1}.tar.gz}"
+tar czf "$output" "$1"
+echo "Compressed to: $output"

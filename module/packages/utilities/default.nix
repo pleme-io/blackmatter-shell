@@ -1,0 +1,31 @@
+pkgs:
+with pkgs; [
+  transmission
+  xorg.xrandr
+  tree-sitter
+  hyperfine
+  bandwhich
+  tealdeer
+  himalaya
+  json2hcl
+  node2nix
+  cpulimit
+  nushell
+  ansible
+  openssl
+  gradle_8
+  httpie
+  trunk
+  whois
+  delta
+  tokei
+  procs
+  grex
+  stig
+  tig
+  gdb
+  bat
+  feh
+  fd
+  sd
+]

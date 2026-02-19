@@ -1,0 +1,5 @@
+local branch
+branch=$(git branch --all | grep -v HEAD | fzf | sed 's/^* //' | sed 's#remotes/origin/##')
+if [ -n "$branch" ]; then
+  git checkout "$branch"
+fi

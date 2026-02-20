@@ -133,7 +133,10 @@
       . '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh'
     fi
     # Load home-manager session variables (EDITOR, SOPS_AGE_KEY_FILE, LIBRARY_PATH, etc.)
-    if [[ -f "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh" ]]; then
+    # Try: nix-darwin per-user profile → standalone HM → nix-profile fallback
+    if [[ -f "/etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh" ]]; then
+      source "/etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh"
+    elif [[ -f "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh" ]]; then
       source "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh"
     elif [[ -f "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ]]; then
       source "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"

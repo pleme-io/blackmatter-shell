@@ -40,8 +40,10 @@ with lib; let
     # This ensures direnv, nix, and all tools work correctly
 
     # Load home-manager session variables (contains environment-specific vars)
-    # Try multiple locations (Linux vs Darwin)
-    if [[ -f "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh" ]]; then
+    # Try multiple locations: nix-darwin per-user profile → standalone HM → nix-profile fallback
+    if [[ -f "/etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh" ]]; then
+      source "/etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh"
+    elif [[ -f "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh" ]]; then
       source "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh"
     elif [[ -f "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ]]; then
       source "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
@@ -129,7 +131,9 @@ with lib; let
 
     # ===== PATH INITIALIZATION =====
     # Load home-manager session variables
-    if [[ -f "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh" ]]; then
+    if [[ -f "/etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh" ]]; then
+      source "/etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh"
+    elif [[ -f "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh" ]]; then
       source "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh"
     elif [[ -f "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ]]; then
       source "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"

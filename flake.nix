@@ -2,7 +2,7 @@
   description = "Blackmatter Shell - curated zsh distribution with 7 plugins and 35 bundled tools";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/d6c71932130818840fc8fe9509cf50be8c64634f";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     blackmatter-nvim = {
       url = "github:pleme-io/blackmatter-nvim";
       inputs.nixpkgs.follows = "nixpkgs";

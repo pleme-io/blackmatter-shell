@@ -181,6 +181,7 @@ in {
     ./tools # Keep existing tools
     ./envrc # Keep existing envrc
     ./tmux # Keep existing tmux
+    ./direnv-lib # Custom direnv use_* functions (use_tend, use_workspace)
   ];
 
   options.blackmatter.components.shell = {
@@ -333,5 +334,8 @@ in {
     blackmatter.components.shell.packages.enable = true;
     blackmatter.components.shell.background.enable = true;
     blackmatter.components.shell.tools.enable = true;
+
+    # Enable direnv library (custom use_* functions)
+    blackmatter.components.shell.direnvLib.enable = mkDefault true;
   };
 }

@@ -22,6 +22,7 @@ in {
           arduino.enable = mkEnableOption "arduino packages";
           asm.enable = mkEnableOption "assembly packages";
           aws.enable = mkEnableOption "AWS packages";
+          cpp.enable = mkEnableOption "C/C++ packages";
           golang.enable = mkEnableOption "Go packages";
           hashicorp.enable = mkEnableOption "HashiCorp packages";
           javascript.enable = mkEnableOption "JavaScript packages";
@@ -95,6 +96,9 @@ in {
     })
     (mkIf cfg.aws.enable {
       home.packages = import ./aws pkgs;
+    })
+    (mkIf cfg.cpp.enable {
+      home.packages = import ./cpp pkgs;
     })
     (mkIf cfg.golang.enable {
       home.packages = import ./golang pkgs;

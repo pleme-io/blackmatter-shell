@@ -202,11 +202,12 @@ in
     export DIRENV_CONFIG="${direnvConfigDir}"
     export PATH="${toolsPath}:$PATH"
     exec ${pkgs.zsh}/bin/zsh "$@"
-  '').overrideAttrs {
+  '').overrideAttrs (final: {
     meta = {
       description = "Blackmatter Shell - curated zsh distribution with 7 plugins and 35+ bundled tools";
       homepage = "https://github.com/pleme-io/blackmatter-shell";
       license = lib.licenses.mit;
       mainProgram = "blzsh";
     };
-  }
+    passthru.shellPath = "/bin/blzsh";
+  })

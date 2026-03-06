@@ -7,12 +7,17 @@
       url = "github:pleme-io/blackmatter-nvim";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    devenv = {
+      url = "github:cachix/devenv";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
     self,
     nixpkgs,
     blackmatter-nvim,
+    devenv,
   }: let
     systems = ["x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin"];
     forAllSystems = f: nixpkgs.lib.genAttrs systems (s: f nixpkgs.legacyPackages.${s});
@@ -50,6 +55,15 @@
           echo "  shellcheck — shell script linter"
           echo "  shfmt      — shell script formatter"
         '';
+      };
+      devenv = devenv.lib.mkShell {
+        inputs = { inherit nixpkgs devenv; };
+        inherit pkgs;
+        modules = [{
+          languages.nix.enable = true;
+          packages = with pkgs; [ nixpkgs-fmt nil ];
+          git-hooks.hooks.nixpkgs-fmt.enable = true;
+        }];
       };
     });
   };

@@ -47,7 +47,7 @@ in {
         [
           # Core tools (both platforms)
           ripgrep
-          claude-code
+          # claude-code moved to blackmatter-claude module for centralized version management
 
           # Essential LSP servers (for Claude Code integration)
           # These are always available regardless of language-specific package options

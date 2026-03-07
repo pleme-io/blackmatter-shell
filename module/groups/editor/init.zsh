@@ -76,8 +76,8 @@ bindkey -M viins '^P' up-line-or-beginning-search
 bindkey -M viins '^N' down-line-or-beginning-search
 
 # ===== CTRL+R FOR HISTORY SEARCH =====
-# NOTE: Ctrl+R is bound by atuin (atuin-search-widget)
-# Don't rebind it here as that would override atuin's fuzzy history search
+# NOTE: Ctrl+R is bound by skim (skim-history-widget) from key-bindings.zsh
+# Don't rebind it here as that would override skim's fuzzy history search
 
 # ===== EDITOR VARIABLES =====
 # Prefer blnvim (blackmatter neovim) when available

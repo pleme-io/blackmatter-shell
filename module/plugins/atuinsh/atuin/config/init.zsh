@@ -5,6 +5,6 @@
 if command -v atuin &> /dev/null; then
   # Initialize atuin with zsh integration
   # --disable-up-arrow: we handle up-arrow ourselves in editor/init.zsh for prefix search
-  # atuin takes over Ctrl+R for its superior fuzzy history search
-  eval "$(atuin init zsh --disable-up-arrow)"
+  # --disable-ctrl-r: skim provides the fuzzy history search UI via ctrl-r
+  eval "$(atuin init zsh --disable-up-arrow --disable-ctrl-r)"
 fi

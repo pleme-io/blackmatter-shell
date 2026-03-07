@@ -1,8 +1,8 @@
 # Editor Integration - Vim mode and keybindings
 
 # ===== VIM MODE =====
-# Enable vim keybindings
-bindkey -v
+# NOTE: bindkey -v is set early in .zshrc (before plugins) so that plugin
+# keybindings (atuin ctrl-r, skim ctrl-f, etc.) are not clobbered.
 
 # ===== CURSOR SHAPE =====
 # Change cursor shape for different vi modes

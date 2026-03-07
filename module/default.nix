@@ -85,6 +85,11 @@ with lib; let
     [[ -f ~/.config/shell/groups/completion/init.zsh ]] && \
       source ~/.config/shell/groups/completion/init.zsh
 
+    # ===== VIM MODE =====
+    # Must be set BEFORE plugins so plugin keybindings (atuin ctrl-r, etc.)
+    # are not clobbered — bindkey -v resets the viins keymap to defaults.
+    bindkey -v
+
     # ===== PLUGINS (sorted by priority) =====
     ${shellHelper.mkPluginInits pluginDecls config}
 

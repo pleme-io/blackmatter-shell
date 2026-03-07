@@ -137,6 +137,11 @@
     [[ -n "$ZPROF" ]] && zmodload zsh/zprof
     source ${./module/groups/common/settings.zsh}
     source ${./module/groups/completion/init.zsh}
+    # ===== VIM MODE =====
+    # Must be set BEFORE plugins so plugin keybindings (atuin ctrl-r, etc.)
+    # are not clobbered — bindkey -v resets the viins keymap to defaults.
+    bindkey -v
+
     # Immediate plugins (priority order: lower = earlier)
     # skim (30): source keybindings directly from nix store
     source ${pkgs.skim}/share/skim/key-bindings.zsh

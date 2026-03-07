@@ -84,6 +84,9 @@ in {
         # Completion (must come before plugin init that registers completions)
         autoload -Uz compinit && compinit -i
 
+        # Vim keybindings (before FZF so plugin bindings aren't clobbered)
+        bindkey -v
+
         # FZF configuration (using nixpkgs fzf, not github version)
         export FZF_DEFAULT_COMMAND='${pkgs.fd}/bin/fd --type f --hidden --follow --exclude .git --strip-cwd-prefix'
         export FZF_ALT_C_COMMAND='${pkgs.fd}/bin/fd --type d --hidden --follow --exclude .git --strip-cwd-prefix'
@@ -101,9 +104,6 @@ in {
 
         # starship prompt (should be last to fully control the prompt)
         eval "$(${pkgs.starship}/bin/starship init zsh)"
-
-        # Vim keybindings
-        bindkey -v
 
         # Load plugins via Sheldon (zsh-autosuggestions, syntax-highlighting)
         # Note: fzf keybindings loaded directly from nixpkgs above

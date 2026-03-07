@@ -1,1 +1,1 @@
-kubectl exec -it $(kubectl get pods | fzf | awk '{print $1}') -- /bin/bash
+kubectl exec -it $(kubectl get pods | sk | awk '{print $1}') -- /bin/bash

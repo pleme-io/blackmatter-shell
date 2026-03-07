@@ -9,10 +9,6 @@
     url = "https://github.com/Aloxaf/fzf-tab";
     rev = "01dad759c4466600b639b442ca24aebd5178e799";
   };
-  zshAutosuggSrc = fetchGit {
-    url = "https://github.com/zsh-users/zsh-autosuggestions";
-    rev = "c3d4e576c9c86eac62884bd47c01f6faed043fc5";
-  };
   zshSynHlSrc = fetchGit {
     url = "https://github.com/zsh-users/zsh-syntax-highlighting";
     rev = "e0165eaa730dd0fa321a6a6de74f092fe87630b0";
@@ -29,18 +25,6 @@
       cp -r $src $out && chmod -R u+w $out
       substituteInPlace $out/init.zsh \
         --replace '$HOME/.local/share/shell/plugins/aloxaf/fzf-tab' "$fzfTabSrc"
-    '';
-
-  zshAutosuggConfig =
-    pkgs.runCommand "zsh-autosuggestions-config"
-    {
-      src = ./module/plugins/zsh-users/zsh-autosuggestions/config;
-      inherit zshAutosuggSrc;
-    }
-    ''
-      cp -r $src $out && chmod -R u+w $out
-      substituteInPlace $out/init.zsh \
-        --replace '$HOME/.local/share/shell/plugins/zsh-users/zsh-autosuggestions' "$zshAutosuggSrc"
     '';
 
   zshSynHlConfig =
@@ -87,7 +71,8 @@
       fd
       ripgrep
       zoxide
-      fzf
+      skim
+      atuin
       delta
       dust
       procs
@@ -153,19 +138,19 @@
     source ${./module/groups/common/settings.zsh}
     source ${./module/groups/completion/init.zsh}
     # Immediate plugins (priority order: lower = earlier)
-    # fzf (30): source keybindings directly from nix store — no runtime path resolution needed
-    source ${pkgs.fzf}/share/fzf/key-bindings.zsh
-    source ${pkgs.fzf}/share/fzf/completion.zsh
-    export _BLZSH_FZF_KEYS_LOADED=1
-    source ${./module/plugins/junegunn/fzf/config/init.zsh}           # fzf opts + Ctrl+F widget
-    source ${fzfTabConfig}/init.zsh                                     # fzf-tab (35)
+    # skim (30): source keybindings directly from nix store
+    source ${pkgs.skim}/share/skim/key-bindings.zsh
+    source ${pkgs.skim}/share/skim/completion.zsh
+    export _BLZSH_SKIM_KEYS_LOADED=1
+    source ${./module/plugins/skim-rs/skim/config/init.zsh}            # skim opts + Ctrl+F widget
+    source ${fzfTabConfig}/init.zsh                                     # fzf-tab (35, skim backend)
     source ${./module/plugins/ajeetdsouza/zoxide/config/init.zsh}      # zoxide (40)
+    source ${./module/plugins/atuinsh/atuin/config/init.zsh}           # atuin (50, replaces autosuggestions)
     source ${./module/plugins/direnv/direnv/config/init.zsh}           # direnv (90)
     # Deferred plugins (loaded after first prompt paint)
     __blackmatter_deferred() {
       add-zsh-hook -d precmd __blackmatter_deferred
       unfunction __blackmatter_deferred
-      source ${zshAutosuggConfig}/init.zsh
       source ${zshSynHlConfig}/init.zsh
       source ${./module/plugins/starship/starship/config/init.zsh}
     }

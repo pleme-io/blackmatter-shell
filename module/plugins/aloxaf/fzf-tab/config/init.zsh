@@ -1,4 +1,5 @@
-# fzf-tab - Replace zsh completion menu with fzf
+# fzf-tab - Replace zsh completion menu with fuzzy finder
+# Backend: skim (Rust fuzzy finder) via fzf-command zstyle
 
 # Plugin path
 FZF_TAB_PLUGIN_PATH="$HOME/.local/share/shell/plugins/aloxaf/fzf-tab"
@@ -7,9 +8,12 @@ FZF_TAB_PLUGIN_PATH="$HOME/.local/share/shell/plugins/aloxaf/fzf-tab"
 [[ -f "$FZF_TAB_PLUGIN_PATH/fzf-tab.plugin.zsh" ]] && \
   source "$FZF_TAB_PLUGIN_PATH/fzf-tab.plugin.zsh"
 
-# ===== NORD-THEMED FZF-TAB CONFIGURATION =====
+# ===== SKIM BACKEND + NORD THEME =====
 
-# Use fzf's default opts (inherits our Nord colors from FZF_DEFAULT_OPTS)
+# Use skim (sk) as the fuzzy finder backend instead of fzf
+zstyle ':fzf-tab:*' fzf-command sk
+
+# Inherit Nord colors from FZF_DEFAULT_OPTS (bridged from SKIM_DEFAULT_OPTIONS)
 zstyle ':fzf-tab:*' use-fzf-default-opts yes
 
 # Switch group with < and >

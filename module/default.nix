@@ -16,10 +16,10 @@ with lib; let
   # Import all plugin declarations for zshrc generation
   pluginDecls = [
     (import ./plugins/direnv/direnv/default.nix)
-    (import ./plugins/junegunn/fzf/default.nix)
+    (import ./plugins/skim-rs/skim/default.nix)
     (import ./plugins/aloxaf/fzf-tab/default.nix)
     (import ./plugins/ajeetdsouza/zoxide/default.nix)
-    (import ./plugins/zsh-users/zsh-autosuggestions/default.nix)
+    (import ./plugins/atuinsh/atuin/default.nix)
     (import ./plugins/zsh-users/zsh-syntax-highlighting/default.nix)
     (import ./plugins/starship/starship/default.nix)
   ];
@@ -211,7 +211,8 @@ in {
         fd # Better find - faster, simpler syntax
         ripgrep # Better grep - blazing fast search
         zoxide # Better cd - smart directory jumping
-        fzf # Fuzzy finder
+        skim # Fuzzy finder (Rust replacement for fzf)
+        atuin # Shell history (Rust replacement for zsh-autosuggestions)
 
         # Additional Rust power tools
         delta # Better git diff - side-by-side, syntax highlighting
@@ -253,6 +254,10 @@ in {
         nix-direnv # Better direnv integration for Nix flakes
         starship # Cross-shell prompt
       ]
+      ++ lib.optionals (pkgs ? blx) [ pkgs.blx ]
+      ++ lib.optionals (pkgs ? bm-syntax) [ pkgs.bm-syntax ]
+      ++ lib.optionals (pkgs ? bm-complete) [ pkgs.bm-complete ]
+      ++ lib.optionals (pkgs ? bm-shell-engine) [ pkgs.bm-shell-engine ]
       ++ lib.optionals pkgs.stdenv.isLinux [
         gitui # TUI for git (Linux only - uses system libs)
       ];
@@ -322,10 +327,10 @@ in {
     # Enable default plugins
     blackmatter.components.shell.plugins = {
       direnv.direnv.enable = mkDefault true;
-      junegunn.fzf.enable = mkDefault true;
+      skim-rs.skim.enable = mkDefault true;
       aloxaf.fzf-tab.enable = mkDefault true;
       ajeetdsouza.zoxide.enable = mkDefault true;
-      zsh-users.zsh-autosuggestions.enable = mkDefault true;
+      atuinsh.atuin.enable = mkDefault true;
       zsh-users.zsh-syntax-highlighting.enable = mkDefault true;
       starship.starship.enable = mkDefault true;
     };

@@ -115,12 +115,16 @@ with lib; let
     unset __bm_local
 
     # ===== PERFORMANCE =====
-    # Compile all sourced files in background for faster subsequent loads
+    # Compile plugin/group files in background for faster subsequent loads.
+    # NOTE: We deliberately do NOT compile ~/.zshrc itself. The zshrc is a
+    # nix-managed symlink that changes on home-manager switch — a .zwc file
+    # would go stale and silently load old config (zsh prefers .zwc over
+    # the source). Plugin files under ~/.config/shell/ are also symlinks but
+    # they are sourced by path from the zshrc, so staleness is harmless.
     {
       for f in ~/.config/shell/{groups,plugins}/**/*.zsh; do
         [[ -f "$f" ]] && [[ ! ''${f}.zwc -nt $f ]] && zcompile "$f"
       done
-      [[ ! ~/.zshrc.zwc -nt ~/.zshrc ]] && zcompile ~/.zshrc
     } &!
 
     # ===== PROFILING OUTPUT =====

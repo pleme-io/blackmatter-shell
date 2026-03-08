@@ -1,1 +1,1 @@
-du -sh * | sort -h
+dust -d 1 "${@:-.}"

@@ -66,8 +66,12 @@ export CLICOLOR=1
 export LSCOLORS="ExGxBxDxCxEgEdxbxgxcxd"  # BSD/macOS format
 
 # GNU format for zsh completion colors and GNU ls
-# Nord-themed: dir=frost blue, link=frost, exec=green, archive=red
-export LS_COLORS="di=1;34:ln=36:so=32:pi=33:ex=1;32:bd=34;46:cd=34;43:su=1;31:sg=1;33:tw=34;42:ow=34;43:*.tar=31:*.tgz=31:*.zip=31:*.gz=31:*.bz2=31:*.7z=31:*.rar=31:*.xz=31:*.zst=31"
+# Use vivid (Rust) to generate full Nord-themed LS_COLORS for all file types
+if command -v vivid &> /dev/null; then
+  export LS_COLORS="$(vivid generate nord)"
+else
+  export LS_COLORS="di=1;34:ln=36:so=32:pi=33:ex=1;32:bd=34;46:cd=34;43:su=1;31:sg=1;33:tw=34;42:ow=34;43:*.tar=31:*.tgz=31:*.zip=31:*.gz=31:*.bz2=31:*.7z=31:*.rar=31:*.xz=31:*.zst=31"
+fi
 
 # Nord color palette for terminal
 export NORD0="#2E3440"

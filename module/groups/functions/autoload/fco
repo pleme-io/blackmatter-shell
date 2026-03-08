@@ -1,5 +1,2 @@
 local branch
-branch=$(git branch --all | grep -v HEAD | sk | sed 's/^* //' | sed 's#remotes/origin/##')
-if [ -n "$branch" ]; then
-  git checkout "$branch"
-fi
+branch=$(git branch --all | grep -v HEAD | sed 's/^[ *]*//' | sk --preview 'git log --oneline --graph --color=always -20 {}' --preview-window=right:50%) && git checkout "$(echo "$branch" | sed 's#remotes/origin/##')"

@@ -96,7 +96,7 @@ skim-file-content-widget() {
     if [[ -n "$selected" ]]; then
       file=$(echo "$selected" | cut -d: -f1)
       line=$(echo "$selected" | cut -d: -f2)
-      ${EDITOR:-vim} "+${line}" "$file"
+      ${EDITOR:-nvim} "+${line}" "$file"
     fi
   else
     echo "rg (ripgrep) not found. Install it for file content search."

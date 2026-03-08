@@ -1,5 +1,5 @@
 local pid
-pid=$(ps aux | sed 1d | sk -m | awk '{print $2}')
+pid=$(procs --no-header | sk -m --preview 'procs --tree {1}' --preview-window=down:4:wrap | awk '{print $1}')
 if [ -n "$pid" ]; then
   echo $pid | xargs kill -${1:-9}
 fi

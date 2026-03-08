@@ -1,2 +1,2 @@
 local dir
-dir=$(fd --type d --hidden --follow --exclude .git | sk --preview 'eza -l --color=always {}' --preview-window=right:50%) && cd "$dir"
+dir=$(fd --type d --hidden --follow --exclude .git | sk --scheme=path --preview 'eza --tree --level=2 --icons --color=always {}' --preview-window=right:50%) && cd "$dir"

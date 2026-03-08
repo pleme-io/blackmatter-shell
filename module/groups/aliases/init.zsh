@@ -77,16 +77,12 @@ if command -v rg &> /dev/null; then
   alias rgrep='rg'
 fi
 
-# dust → du (better disk usage)
-if command -v dust &> /dev/null; then
-  alias du='dust'
-  alias duu='dust'  # Explicit dust command
-fi
+# dust — available as 'dust' directly; don't alias du (duh/dirsize functions use dust)
+# Use 'dust' for the visual disk usage tool, 'command du' when you need POSIX du
 
-# procs → ps (modern process viewer)
+# procs — available as 'procs' directly; don't alias ps (fkill and scripts need POSIX ps)
 if command -v procs &> /dev/null; then
-  alias ps='procs'
-  alias pss='procs'  # Explicit procs command
+  alias pss='procs'
   alias pstree='procs --tree'
 fi
 
@@ -140,10 +136,9 @@ if command -v yazi &> /dev/null; then
   alias fm='yazi'
 fi
 
-# miniserve → HTTP file server
-# Note: 'serve' function in functions/autoload handles the simple case
+# miniserve — 'serve' function wraps it; 'servedir' for directory listing mode
 if command -v miniserve &> /dev/null; then
-  alias servedir='miniserve --index index.html'
+  alias servedir='miniserve'
 fi
 
 # ouch → universal compress/decompress
@@ -219,7 +214,7 @@ alias gg='lazygit'           # Quick access to git TUI (works on macOS + Linux)
 # Disable globbing for nix commands to allow # in flake URIs
 alias nix='noglob nix'
 alias nix-shell='noglob nix-shell --run zsh'
-alias nix-build='noglob nix build'
+alias nb='noglob nix build'
 alias nix-dev='noglob nix develop'
 alias nix-search='noglob nix search nixpkgs'
 alias nix-update='noglob nix flake update'
@@ -241,7 +236,7 @@ alias klf='kubectl logs -f'
 
 # ===== DOCKER ALIASES =====
 alias d='docker'
-alias dc='docker-compose'
+alias dc='docker compose'
 alias dps='docker ps'
 alias dpsa='docker ps -a'
 alias di='docker images'
@@ -250,12 +245,12 @@ alias drmi='docker rmi'
 alias dex='docker exec -it'
 alias dl='docker logs'
 alias dlf='docker logs -f'
-alias dcp='docker-compose ps'
-alias dcu='docker-compose up'
-alias dcud='docker-compose up -d'
-alias dcd='docker-compose down'
-alias dcl='docker-compose logs'
-alias dclf='docker-compose logs -f'
+alias dcp='docker compose ps'
+alias dcu='docker compose up'
+alias dcud='docker compose up -d'
+alias dcd='docker compose down'
+alias dcl='docker compose logs'
+alias dclf='docker compose logs -f'
 
 # ===== FILE OPERATIONS =====
 alias cp='cp -i'      # Confirm before overwriting
@@ -263,7 +258,6 @@ alias mv='mv -i'      # Confirm before overwriting
 alias rm='rm -i'      # Confirm before removing
 alias mkdir='mkdir -p' # Create parent directories as needed
 alias df='df -h'      # Human-readable sizes
-alias free='free -h'  # Human-readable sizes (Linux only)
 
 # Note: du, ps, top, htop are replaced by Rust tools above (dust, procs, bottom)
 
@@ -293,15 +287,16 @@ alias wget='wget -c'  # Resume downloads by default
 # Note: ripgrep (rg) is available but grep remains for compatibility
 
 # ===== SAFETY ALIASES =====
-# Prevent accidental destructive operations
-alias chown='chown --preserve-root'
-alias chmod='chmod --preserve-root'
-alias chgrp='chgrp --preserve-root'
+# Prevent accidental destructive operations (GNU coreutils only)
+if [[ "$(uname)" != "Darwin" ]]; then
+  alias chown='chown --preserve-root'
+  alias chmod='chmod --preserve-root'
+  alias chgrp='chgrp --preserve-root'
+fi
 
 # ===== QUICK EDIT ALIASES =====
-alias zshrc='vim ~/.zshrc'
-alias vimrc='vim ~/.config/nvim/init.lua'
-alias aliases='vim ~/.config/shell/groups/aliases/init.zsh'
+# blzsh config is in the Nix store — edit the source repo instead
+alias shellrc='vim ~/code/github/pleme-io/blackmatter-shell/'
 
 # ===== DEVELOPMENT ALIASES =====
 alias py='python3'

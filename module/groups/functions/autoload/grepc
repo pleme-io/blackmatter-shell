@@ -1,5 +1,1 @@
-if command -v rg &> /dev/null; then
-  rg -C 3 "$@"
-else
-  grep -C 3 --color=always "$@"
-fi
+rg -C 3 "$@"

@@ -23,7 +23,11 @@ zstyle ':fzf-tab:*' use-fzf-default-opts yes
 zstyle ':fzf-tab:*' switch-group '<' '>'
 
 # Disable sort for completion results (preserve zsh's native ordering)
+# Use Arinae algorithm for typo-resistant matching and path-aware scheme for file completions
 zstyle ':fzf-tab:*' fzf-flags --no-sort
+zstyle ':fzf-tab:complete:cd:*' fzf-flags --no-sort --scheme=path
+zstyle ':fzf-tab:complete:pushd:*' fzf-flags --no-sort --scheme=path
+zstyle ':fzf-tab:complete:z:*' fzf-flags --no-sort --scheme=path
 
 # ===== PREVIEW CONFIGURATION =====
 

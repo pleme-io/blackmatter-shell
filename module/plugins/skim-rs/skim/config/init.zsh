@@ -1,7 +1,9 @@
 # skim - Fuzzy finder for command-line (Rust replacement for fzf)
 
 # Nord-themed skim configuration
+# Uses Arinae algorithm for typo-resistant fuzzy matching
 export SKIM_DEFAULT_OPTIONS="
+  --algo=arinae
   --height 30%
   --layout=reverse
   --border=rounded
@@ -62,9 +64,10 @@ if [[ -z "$_BLZSH_SKIM_KEYS_LOADED" ]] && command -v sk &> /dev/null; then
   fi
 fi
 
-# Ctrl+T: File/directory search with preview
+# Ctrl+T: File/directory search with preview (path-aware matching)
 export SKIM_CTRL_T_COMMAND="${SKIM_DEFAULT_COMMAND:-fd --type f --type d --hidden --follow --exclude .git --strip-cwd-prefix}"
 export SKIM_CTRL_T_OPTS="
+  --scheme=path
   --preview 'if [ -d {} ]; then eza --tree --level=2 --icons --color=always {} 2>/dev/null || ls -la {}; else bat --color=always --style=numbers --line-range=:500 {} 2>/dev/null || cat {}; fi'
   --bind 'ctrl-/:change-preview-window(down|hidden|)'
   --header 'CTRL-T: Files/Dirs | CTRL-/: Toggle Preview'
@@ -75,6 +78,7 @@ if command -v fd &> /dev/null; then
   export SKIM_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git --strip-cwd-prefix'
 fi
 export SKIM_ALT_C_OPTS="
+  --scheme=path
   --preview 'eza --tree --level=2 --icons --color=always {} 2>/dev/null || ls -la {}'
   --header 'ALT-C: Change Directory'
 "

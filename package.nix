@@ -41,6 +41,11 @@
         --replace '$HOME/.local/share/shell/plugins/zsh-users/zsh-syntax-highlighting' "$zshSynHlSrc"
     '';
 
+  # Bake Nord LS_COLORS at build time (no runtime vivid call needed)
+  nordLsColors = builtins.readFile (pkgs.runCommand "nord-ls-colors" {} ''
+    ${pkgs.vivid}/bin/vivid generate nord | tr -d '\n' > $out
+  '');
+
   # Direnv config: nix-direnv integration + PATH-preservation wrapper
   direnvrc = pkgs.writeText "direnvrc" ''
     source ${pkgs.nix-direnv}/share/nix-direnv/direnvrc
@@ -103,6 +108,7 @@
       watchexec
       miniserve
       yazi
+      lazygit
 
       # ── Shell infrastructure ──
       direnv
@@ -130,6 +136,7 @@
       source "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
     fi
     export STARSHIP_CONFIG="${./module/plugins/starship/starship/config/starship.toml}"
+    export LS_COLORS="${nordLsColors}"
     mkdir -p "''${XDG_STATE_HOME:-$HOME/.local/state}/zsh"
     mkdir -p "''${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
   '';

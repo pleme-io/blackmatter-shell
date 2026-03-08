@@ -64,29 +64,4 @@ export KEYTIMEOUT=20              # 200ms for key sequences (reliable vim mode s
 # Enable colors in ls and completion
 export CLICOLOR=1
 export LSCOLORS="ExGxBxDxCxEgEdxbxgxcxd"  # BSD/macOS format
-
-# GNU format for zsh completion colors and GNU ls
-# Use vivid (Rust) to generate full Nord-themed LS_COLORS for all file types
-if command -v vivid &> /dev/null; then
-  export LS_COLORS="$(vivid generate nord)"
-else
-  export LS_COLORS="di=1;34:ln=36:so=32:pi=33:ex=1;32:bd=34;46:cd=34;43:su=1;31:sg=1;33:tw=34;42:ow=34;43:*.tar=31:*.tgz=31:*.zip=31:*.gz=31:*.bz2=31:*.7z=31:*.rar=31:*.xz=31:*.zst=31"
-fi
-
-# Nord color palette for terminal
-export NORD0="#2E3440"
-export NORD1="#3B4252"
-export NORD2="#434C5E"
-export NORD3="#4C566A"
-export NORD4="#D8DEE9"
-export NORD5="#E5E9F0"
-export NORD6="#ECEFF4"
-export NORD7="#8FBCBB"
-export NORD8="#88C0D0"
-export NORD9="#81A1C1"
-export NORD10="#5E81AC"
-export NORD11="#BF616A"
-export NORD12="#D08770"
-export NORD13="#EBCB8B"
-export NORD14="#A3BE8C"
-export NORD15="#B48EAD"
+# LS_COLORS is baked at build time via vivid generate nord (set in .zshenv)

@@ -1,5 +1,5 @@
 # fzf-tab - Replace zsh completion menu with fuzzy finder
-# Backend: skim (Rust fuzzy finder) via fzf-command zstyle
+# Backend: skim-tab (Rust bridge that fixes skim's --expect output protocol)
 
 # Plugin path
 FZF_TAB_PLUGIN_PATH="$HOME/.local/share/shell/plugins/aloxaf/fzf-tab"
@@ -8,10 +8,13 @@ FZF_TAB_PLUGIN_PATH="$HOME/.local/share/shell/plugins/aloxaf/fzf-tab"
 [[ -f "$FZF_TAB_PLUGIN_PATH/fzf-tab.plugin.zsh" ]] && \
   source "$FZF_TAB_PLUGIN_PATH/fzf-tab.plugin.zsh"
 
-# ===== SKIM BACKEND + NORD THEME =====
+# ===== SKIM-TAB BACKEND + NORD THEME =====
 
-# Use skim (sk) as the fuzzy finder backend instead of fzf
-zstyle ':fzf-tab:*' fzf-command sk
+# Use skim-tab — purpose-built fzf protocol bridge for skim.
+# skim's --expect is deprecated in 3.x and doesn't output the empty key line
+# for Enter that fzf-tab requires. skim-tab converts --expect to --bind accept
+# and formats output in the exact fzf protocol.
+zstyle ':fzf-tab:*' fzf-command skim-tab
 
 # Inherit Nord colors from FZF_DEFAULT_OPTS (bridged from SKIM_DEFAULT_OPTIONS)
 zstyle ':fzf-tab:*' use-fzf-default-opts yes

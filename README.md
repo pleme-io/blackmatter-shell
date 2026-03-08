@@ -39,8 +39,8 @@ All plugins are fetched at build time via `builtins.fetchGit` or nixpkgs — no 
 
 | Plugin | Priority | Description |
 |--------|----------|-------------|
-| fzf | 30 | Fuzzy finder with keybindings and completion |
-| fzf-tab | 35 | Replace zsh completion menu with fzf |
+| skim | 30 | Fuzzy finder (Rust) with keybindings and completion |
+| fzf-tab | 35 | Replace zsh completion menu with skim-tab (Rust bridge) |
 | zoxide | 40 | Smart `cd` that learns your habits |
 | zsh-autosuggestions | 80 | Fish-like inline suggestions (deferred) |
 | direnv | 90 | Per-directory environments with nix-direnv (deferred) |

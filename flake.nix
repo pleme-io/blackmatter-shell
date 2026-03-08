@@ -7,6 +7,10 @@
       url = "github:pleme-io/blackmatter-nvim";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    skim-tab = {
+      url = "github:pleme-io/skim-tab";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     devenv = {
       url = "github:cachix/devenv";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -17,6 +21,7 @@
     self,
     nixpkgs,
     blackmatter-nvim,
+    skim-tab,
     devenv,
   }: let
     systems = ["x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin"];
@@ -24,11 +29,11 @@
   in {
     packages = forAllSystems (pkgs: {
       default = import ./package.nix {
-        inherit pkgs blackmatter-nvim;
+        inherit pkgs blackmatter-nvim skim-tab;
         lib = nixpkgs.lib;
       };
       blzsh = import ./package.nix {
-        inherit pkgs blackmatter-nvim;
+        inherit pkgs blackmatter-nvim skim-tab;
         lib = nixpkgs.lib;
       };
     });
@@ -37,6 +42,7 @@
 
     overlays.default = final: prev: {
       blzsh = self.packages.${final.system}.blzsh;
+      skim-tab = skim-tab.packages.${final.system}.default;
     };
 
     devShells = forAllSystems (pkgs: {

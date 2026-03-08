@@ -221,6 +221,9 @@ in {
         ripgrep # Better grep - blazing fast search
         zoxide # Better cd - smart directory jumping
         skim # Fuzzy finder (Rust replacement for fzf)
+      ]
+      ++ lib.optionals (pkgs ? skim-tab) [ pkgs.skim-tab ] # fzf-tab ↔ skim bridge
+      ++ [
         atuin # Shell history (Rust replacement for zsh-autosuggestions)
 
         # Additional Rust power tools

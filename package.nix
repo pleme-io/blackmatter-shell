@@ -2,8 +2,10 @@
   pkgs,
   lib,
   blackmatter-nvim,
+  skim-tab,
 }: let
   blnvim = blackmatter-nvim.packages.${pkgs.system}.blnvim;
+  skimTabBin = skim-tab.packages.${pkgs.system}.default;
   # GitHub plugin sources (same revs as plugin declarations in registry)
   fzfTabSrc = fetchGit {
     url = "https://github.com/Aloxaf/fzf-tab";
@@ -72,6 +74,7 @@
       ripgrep
       zoxide
       skim
+      skimTabBin
       atuin
       delta
       dust

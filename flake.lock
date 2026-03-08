@@ -1407,11 +1407,11 @@
         "substrate": "substrate"
       },
       "locked": {
-        "lastModified": 1772951230,
-        "narHash": "sha256-oEQrkH0TYfVcrHN9w4IJnNBJasWQxzmhp4MjxkKa3Yg=",
+        "lastModified": 1773003957,
+        "narHash": "sha256-1tVpB7yEJooWxrir4j9tSHLQLwhJWvsCZFNSLMnuYBI=",
         "owner": "pleme-io",
         "repo": "skim-tab",
-        "rev": "8a47969eacb28e6a1c4d1bb7f492d84f05601226",
+        "rev": "0540bca3b04edfce69dec8abbd11db235279992e",
         "type": "github"
       },
       "original": {

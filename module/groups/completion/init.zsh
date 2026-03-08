@@ -13,8 +13,9 @@ if [[ -n ${zcompdump}(#qN.mh+24) ]] || [[ ! -f "$zcompdump" ]]; then
 else
   compinit -C -d "$zcompdump"
 fi
-# Compile dump file in background for faster loading
-{ [[ ! ${zcompdump}.zwc -nt ${zcompdump} ]] && zcompile "${zcompdump}" } &!
+# NOTE: We do NOT zcompile the zcompdump. Under Nix, compiled .zwc files
+# go stale silently when store paths change (epoch timestamps break -nt).
+# The activation script cleans up all .zwc files on every rebuild.
 
 # Cache completion results
 zstyle ':completion::complete:*' use-cache on

@@ -114,35 +114,18 @@ with lib; let
     done
     unset __bm_local
 
-    # ===== PERFORMANCE =====
-    # Compile plugin/group files in background for faster subsequent loads.
-    # NOTE: We deliberately do NOT compile ~/.zshrc itself. The zshrc is a
-    # nix-managed symlink that changes on home-manager switch — a .zwc file
-    # would go stale and silently load old config (zsh prefers .zwc over
-    # the source). Plugin config files are ALSO nix-managed symlinks whose
-    # targets have epoch timestamps (1970), so the old "-nt" freshness check
-    # always considered stale .zwc files "newer" and never recompiled them.
-    # We now compare the symlink target: if the .zsh file is a symlink and
-    # the .zwc was compiled from a different target, recompile.
-    {
-      for f in ~/.config/shell/{groups,plugins}/**/*.zsh; do
-        if [[ -f "$f" ]]; then
-          if [[ -L "$f" ]]; then
-            # Nix-managed symlink: recompile if .zwc is missing or was
-            # compiled from a different symlink target (i.e. the nix store
-            # path changed after a rebuild).
-            local target=$(readlink "$f")
-            local marker="''${f}.zwc.target"
-            if [[ ! -f "''${f}.zwc" ]] || [[ ! -f "$marker" ]] || [[ "$(< "$marker")" != "$target" ]]; then
-              zcompile "$f" && printf '%s' "$target" > "$marker"
-            fi
-          else
-            # Regular file: use timestamp freshness check
-            [[ ! "''${f}.zwc" -nt "$f" ]] && zcompile "$f"
-          fi
-        fi
-      done
-    } &!
+    # ===== STALE CACHE GUARD =====
+    # Zsh silently prefers .zwc (compiled) files over .zsh source files.
+    # Under Nix, all shell config files are symlinks to the store, so any
+    # .zwc compiled from a previous generation is stale by definition.
+    # Rather than try to detect staleness at runtime (which is fragile —
+    # Nix store symlinks have epoch timestamps that break -nt checks), we
+    # simply delete any .zwc that shouldn't exist. The activation script
+    # (home.activation.cleanZshCache) handles the bulk cleanup on rebuild;
+    # this guard catches .zwc files created by external tools or zsh itself
+    # between rebuilds (e.g., a rogue zcompile in a plugin).
+    [[ -f ~/.zshrc.zwc ]] && rm -f ~/.zshrc.zwc
+    [[ -f ~/.zshenv.zwc ]] && rm -f ~/.zshenv.zwc
 
     # ===== PROFILING OUTPUT =====
     [[ -n "$ZPROF" ]] && zprof
@@ -290,6 +273,30 @@ in {
       ++ lib.optionals pkgs.stdenv.isLinux [
         gitui # TUI for git (Linux only - uses system libs)
       ];
+
+    # ── Activation: purge all compiled zsh caches on every rebuild ──────────
+    # Zsh silently prefers .zwc (compiled wordcode) files over .zsh source.
+    # Under Nix, ALL shell config is symlinked to the store, so ANY .zwc
+    # from a previous generation is stale by definition. Rather than detect
+    # staleness (which is fragile — store symlinks have epoch timestamps),
+    # we nuke every .zwc on rebuild and let zsh use the source directly.
+    # The performance cost is negligible on modern hardware.
+    home.activation.cleanZshCache = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      # ── .zwc files under ~/.config/shell/ (plugins + groups) ──
+      find "$HOME/.config/shell" -name '*.zwc' -delete 2>/dev/null || true
+      find "$HOME/.config/shell" -name '*.zwc.target' -delete 2>/dev/null || true
+
+      # ── .zwc files next to dotfiles (zshrc, zshenv, etc.) ──
+      rm -f "$HOME/.zshrc.zwc" "$HOME/.zshenv.zwc" "$HOME/.zprofile.zwc"
+
+      # ── zcompdump: force regeneration so new packages get completions ──
+      rm -f "$HOME/.cache/zsh/zcompdump-"*
+      rm -f "$HOME/.cache/zsh/zcompdump-"*.zwc
+
+      # ── orphan zcompdump files from old config layouts ──
+      rm -f "$HOME/.zcompdump" "$HOME/.zcompdump."*
+      rm -f "$HOME/.zsh/zcompdump" "$HOME/.zsh/zcompdump.zwc"
+    '';
 
     # Generate .zshenv (loaded FIRST, before .zshrc)
     # Critical for direnv and all commands to have correct PATH

@@ -119,11 +119,28 @@ with lib; let
     # NOTE: We deliberately do NOT compile ~/.zshrc itself. The zshrc is a
     # nix-managed symlink that changes on home-manager switch — a .zwc file
     # would go stale and silently load old config (zsh prefers .zwc over
-    # the source). Plugin files under ~/.config/shell/ are also symlinks but
-    # they are sourced by path from the zshrc, so staleness is harmless.
+    # the source). Plugin config files are ALSO nix-managed symlinks whose
+    # targets have epoch timestamps (1970), so the old "-nt" freshness check
+    # always considered stale .zwc files "newer" and never recompiled them.
+    # We now compare the symlink target: if the .zsh file is a symlink and
+    # the .zwc was compiled from a different target, recompile.
     {
       for f in ~/.config/shell/{groups,plugins}/**/*.zsh; do
-        [[ -f "$f" ]] && [[ ! ''${f}.zwc -nt $f ]] && zcompile "$f"
+        if [[ -f "$f" ]]; then
+          if [[ -L "$f" ]]; then
+            # Nix-managed symlink: recompile if .zwc is missing or was
+            # compiled from a different symlink target (i.e. the nix store
+            # path changed after a rebuild).
+            local target=$(readlink "$f")
+            local marker="''${f}.zwc.target"
+            if [[ ! -f "''${f}.zwc" ]] || [[ ! -f "$marker" ]] || [[ "$(< "$marker")" != "$target" ]]; then
+              zcompile "$f" && printf '%s' "$target" > "$marker"
+            fi
+          else
+            # Regular file: use timestamp freshness check
+            [[ ! "''${f}.zwc" -nt "$f" ]] && zcompile "$f"
+          fi
+        fi
       done
     } &!
 

@@ -3,11 +3,43 @@
 
 {
   lib,
+  pkgs,
   config,
   ...
 }:
 with lib; let
   cfg = config.blackmatter.components.shell.groups;
+
+  # Platform-specific aliases injected at Nix build time (no runtime uname checks)
+  platformAliases =
+    lib.optionalString pkgs.stdenv.isDarwin ''
+      alias nrb='noglob darwin-rebuild switch --flake .'
+      alias ports='lsof -i -n -P | grep LISTEN'
+    ''
+    + lib.optionalString pkgs.stdenv.isLinux ''
+      alias nrb='noglob sudo nixos-rebuild switch --flake .'
+      alias ports='ss -tulanp'
+      # Clipboard (Wayland preferred, X11 fallback)
+      if [[ -n "$WAYLAND_DISPLAY" ]]; then
+        alias pbcopy='wl-copy'
+        alias pbpaste='wl-paste'
+      elif [[ -n "$DISPLAY" ]]; then
+        alias pbcopy='xsel --clipboard --input'
+        alias pbpaste='xsel --clipboard --output'
+      fi
+      # GNU coreutils safety
+      alias chown='chown --preserve-root'
+      alias chmod='chmod --preserve-root'
+      alias chgrp='chgrp --preserve-root'
+      # systemctl
+      alias sc='sudo systemctl'
+      alias scs='sudo systemctl status'
+      alias scr='sudo systemctl restart'
+      alias sce='sudo systemctl enable'
+      alias scd='sudo systemctl disable'
+      alias scst='sudo systemctl start'
+      alias scsp='sudo systemctl stop'
+    '';
 in {
   options.blackmatter.components.shell.groups = {
     enable = mkEnableOption "enable shell groups";
@@ -48,7 +80,8 @@ in {
     })
 
     (mkIf cfg.aliases.enable {
-      xdg.configFile."shell/groups/aliases/init.zsh".source = ./aliases/init.zsh;
+      xdg.configFile."shell/groups/aliases/init.zsh".text =
+        builtins.readFile ./aliases/init.zsh + platformAliases;
     })
 
     (mkIf cfg.functions.enable {

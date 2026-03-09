@@ -24,31 +24,8 @@ alias lta='eza -la --sort=modified --reverse --icons --group-directories-first'
 alias ltr='eza -l --sort=modified --reverse --icons --group-directories-first'
 alias tree='eza --tree --icons'
 
-# ls wrapper: translates packed POSIX flags (-ltra) to eza equivalents
-ls() {
-  local -a eza_args=(--icons --group-directories-first)
-  local -a paths=()
-  local has_l=0 has_a=0 has_t=0 has_r=0 has_1=0
-  for arg in "$@"; do
-    if [[ "$arg" == --* ]]; then
-      eza_args+=("$arg")
-    elif [[ "$arg" == -* ]]; then
-      [[ "$arg" == *l* ]] && has_l=1
-      [[ "$arg" == *[aA]* ]] && has_a=1
-      [[ "$arg" == *t* ]] && has_t=1
-      [[ "$arg" == *r* ]] && has_r=1
-      [[ "$arg" == *1* ]] && has_1=1
-    else
-      paths+=("$arg")
-    fi
-  done
-  (( has_l )) && eza_args+=("-l")
-  (( has_a )) && eza_args+=("-a")
-  (( has_t )) && eza_args+=(--sort=modified)
-  (( has_r )) && eza_args+=(--reverse)
-  (( has_1 )) && eza_args+=("-1")
-  eza "${eza_args[@]}" "${paths[@]}"
-}
+# ls wrapper: Rust binary translates POSIX flags (-ltra) to eza equivalents
+alias ls='blx-ls'
 
 # bottom → top/htop
 alias top='btm'
@@ -104,19 +81,21 @@ alias docker-clean='docker container prune -f && docker image prune -f && docker
 alias docker-rm-all='docker rm $(docker ps -a -q)'
 alias docker-stop-all='docker stop $(docker ps -q)'
 
-# Git shortcuts (inline functions — too small for autoload)
-gac()  { git add --all && git commit -m "$*"; }
-gacp() { git add --all && git commit -m "$*" && git push; }
-gct()  { git commit -m "$* - $(date '+%Y-%m-%d %H:%M:%S')"; }
-backup() { cp "$1" "${1}.backup.$(date +%Y%m%d_%H%M%S)"; }
-weather() { curl -s "wttr.in/${1:-}?format=3"; }
+# Rust utility binaries (skim-tab crate — replace shell functions)
+alias gac='git-ac'
+alias gacp='git-acp'
+alias gct='git-ct'
+alias backup='blx-backup'
+alias weather='blx-weather'
+alias json='blx-json'
+alias urlencode='blx-urlencode'
+alias urldecode='blx-urldecode'
+
+# Shell functions (require calling shell — cannot be Rust)
 nix-shell-pkg() { nix-shell -p "$@" --run zsh; }
 nix-info() { nix search nixpkgs "$1" --json | jaq -r '.[] | "\(.pname) (\(.version))\n  \(.description)\n"'; }
 gcl()  { git clone "$1" && cd "$(basename "$1" .git)"; }
 mkcd() { mkdir -p "$1" && cd "$1"; }
-json() { if [ -t 0 ]; then echo "$@" | jaq .; else jaq .; fi; }
-urlencode() { printf '%s' "$1" | jaq -Rr @uri; }
-urldecode() { printf '%b\n' "${1//%/\\x}"; }
 
 # Git TUI
 alias lg='lazygit'
@@ -167,11 +146,7 @@ alias nd='noglob nix develop'
 alias ns='noglob nix search nixpkgs'
 alias nfu='noglob nix flake update'
 alias ngc='noglob nix-collect-garbage -d'
-if [[ "$(uname)" == "Darwin" ]]; then
-  alias nrb='noglob darwin-rebuild switch --flake .'
-else
-  alias nrb='noglob sudo nixos-rebuild switch --flake .'
-fi
+# nrb alias injected at Nix build time (platform-specific)
 
 # ===== KUBERNETES =====
 alias kgd='kubectl get deployments'
@@ -200,32 +175,10 @@ alias rm='rm -i'
 alias mkdir='mkdir -p'
 alias df='df -h'
 
-# ===== CLIPBOARD (Linux only — macOS has pbcopy/pbpaste natively) =====
-if [[ "$(uname)" == "Linux" ]]; then
-  if [[ -n "$WAYLAND_DISPLAY" ]]; then
-    alias pbcopy='wl-copy'
-    alias pbpaste='wl-paste'
-  elif [[ -n "$DISPLAY" ]]; then
-    alias pbcopy='xsel --clipboard --input'
-    alias pbpaste='xsel --clipboard --output'
-  fi
-fi
-
 # ===== UTILITY =====
 alias reload='source ${ZDOTDIR:-$HOME}/.zshrc'
 alias path='echo ${(F)path}'
-if [[ "$(uname)" == "Darwin" ]]; then
-  alias ports='lsof -i -n -P | grep LISTEN'
-else
-  alias ports='ss -tulanp'
-fi
-
-# Safety aliases (GNU coreutils only)
-if [[ "$(uname)" != "Darwin" ]]; then
-  alias chown='chown --preserve-root'
-  alias chmod='chmod --preserve-root'
-  alias chgrp='chgrp --preserve-root'
-fi
+# ports, clipboard, safety aliases injected at Nix build time (platform-specific)
 
 # blzsh config is in the Nix store — edit the source repo
 alias shellrc='vim ~/code/github/pleme-io/blackmatter-shell/'
@@ -248,13 +201,4 @@ alias cu='cargo update'
 alias please='sudo'
 alias pls='sudo'
 
-# ===== SYSTEMCTL (Linux) =====
-if command -v systemctl &> /dev/null; then
-  alias sc='sudo systemctl'
-  alias scs='sudo systemctl status'
-  alias scr='sudo systemctl restart'
-  alias sce='sudo systemctl enable'
-  alias scd='sudo systemctl disable'
-  alias scst='sudo systemctl start'
-  alias scsp='sudo systemctl stop'
-fi
+# systemctl aliases injected at Nix build time (Linux only)

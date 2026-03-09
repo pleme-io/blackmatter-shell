@@ -63,6 +63,35 @@
     mkdir $out && ln -s ${direnvrc} $out/direnvrc
   '';
 
+  # Platform-specific aliases baked at build time (no runtime uname checks)
+  platformAliases = pkgs.writeText "blzsh-platform-aliases" (
+    lib.optionalString pkgs.stdenv.isDarwin ''
+      alias nrb='noglob darwin-rebuild switch --flake .'
+      alias ports='lsof -i -n -P | grep LISTEN'
+    ''
+    + lib.optionalString pkgs.stdenv.isLinux ''
+      alias nrb='noglob sudo nixos-rebuild switch --flake .'
+      alias ports='ss -tulanp'
+      if [[ -n "$WAYLAND_DISPLAY" ]]; then
+        alias pbcopy='wl-copy'
+        alias pbpaste='wl-paste'
+      elif [[ -n "$DISPLAY" ]]; then
+        alias pbcopy='xsel --clipboard --input'
+        alias pbpaste='xsel --clipboard --output'
+      fi
+      alias chown='chown --preserve-root'
+      alias chmod='chmod --preserve-root'
+      alias chgrp='chgrp --preserve-root'
+      alias sc='sudo systemctl'
+      alias scs='sudo systemctl status'
+      alias scr='sudo systemctl restart'
+      alias sce='sudo systemctl enable'
+      alias scd='sudo systemctl disable'
+      alias scst='sudo systemctl start'
+      alias scsp='sudo systemctl stop'
+    ''
+  );
+
   # All tools bundled with blzsh
   toolsPath = lib.makeBinPath (with pkgs;
     [
@@ -190,7 +219,7 @@
     add-zsh-hook precmd __blackmatter_deferred
     source ${./module/groups/editor/init.zsh}
     source ${./module/groups/aliases/init.zsh}
-    # Functions are inlined in aliases/init.zsh — no separate autoload directory.
+    source ${platformAliases}
     # ===== LOCAL OVERRIDES =====
     # Machine-specific aliases, env vars, tweaks (written by home-manager components)
     # e.g. ssh-aliases.zsh, cid.zsh — each component writes its own named file

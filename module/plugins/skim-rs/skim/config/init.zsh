@@ -1,88 +1,44 @@
-# skim — Rust fuzzy finder with Nord theme
+# skim — Rust fuzzy finder keybindings
+#
+# All logic lives in Rust binaries (skim-history, skim-files, skim-content,
+# skim-cd). Shell is ZLE glue only — save buffer, call binary, restore on abort.
 
-export SKIM_DEFAULT_OPTIONS="
-  --height 30%
-  --layout=reverse
-  --border=rounded
-  --info=inline
-  --prompt='❄ '
-  --ansi
-  --bind='ctrl-/:toggle-preview'
-  --bind='ctrl-u:preview-half-page-up'
-  --bind='ctrl-d:preview-half-page-down'
-  --preview-window='right:50%:hidden:wrap'
-  --color=fg:#D8DEE9,bg:#2E3440,hl:#88C0D0
-  --color=fg+:#ECEFF4,bg+:#3B4252,hl+:#8FBCBB
-  --color=info:#81A1C1,prompt:#A3BE8C,pointer:#BF616A
-  --color=marker:#B48EAD,spinner:#81A1C1,header:#5E81AC
-  --color=border:#4C566A,query:#ECEFF4
-"
-
-# Bridge for fzf-tab compatibility
+# Nord theme for fzf-tab (the only consumer of these env vars)
+export SKIM_DEFAULT_OPTIONS="--height 30% --layout=reverse --ansi --color=fg:#D8DEE9,bg:#2E3440,hl:#88C0D0:bold:underlined,fg+:#ECEFF4:bold,bg+:#3B4252,hl+:#8FBCBB:bold:underlined,info:#4C566A,prompt:#A3BE8C,pointer:#88C0D0,marker:#B48EAD,spinner:#81A1C1,header:#5E81AC,border:#4C566A,query:#ECEFF4:bold"
 export FZF_DEFAULT_OPTS="$SKIM_DEFAULT_OPTIONS"
 
-# Use fd for file discovery
-export SKIM_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git --strip-cwd-prefix'
+# ── ZLE widgets ─────────────────────────────────────────────────────────
 
-# Ctrl+T: File/directory search with preview (path-aware matching)
-export SKIM_CTRL_T_COMMAND="fd --type f --type d --hidden --follow --exclude .git --strip-cwd-prefix"
-export SKIM_CTRL_T_OPTS="
-  --scheme=path
-  --preview 'if [ -d {} ]; then eza --tree --level=2 --icons --color=always {} 2>/dev/null; else bat --color=always --style=numbers --line-range=:500 {} 2>/dev/null; fi'
-  --bind 'ctrl-/:change-preview-window(down|hidden|)'
-  --header 'CTRL-T: Files/Dirs | CTRL-/: Toggle Preview'
-"
-
-# Alt+C: Directory search with tree preview
-export SKIM_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git --strip-cwd-prefix'
-export SKIM_ALT_C_OPTS="
-  --scheme=path
-  --preview 'eza --tree --level=2 --icons --color=always {}'
-  --header 'ALT-C: Change Directory'
-"
-
-# Ctrl+R: Fuzzy history search (via skim-history Rust binary)
 skim-history-widget() {
-  local selected
-  zle -I
-  selected=$(skim-history --query "${LBUFFER}")
-  if [[ -n "$selected" ]]; then
-    LBUFFER="$selected"
-    RBUFFER=""
-  fi
-  zle reset-prompt
+  local sb="$BUFFER" sc="$CURSOR"; zle -I
+  local r; r=$(skim-history --query "${LBUFFER}")
+  if [[ -n "$r" ]]; then BUFFER="$r"; CURSOR=${#BUFFER}
+  else BUFFER="$sb"; CURSOR="$sc"; fi; zle reset-prompt
 }
-zle -N skim-history-widget
-bindkey '^R' skim-history-widget
+zle -N skim-history-widget; bindkey '^R' skim-history-widget
 
-# Ctrl+T: Fuzzy file/directory picker (via skim-files Rust binary)
 skim-files-widget() {
-  local selected
-  zle -I
-  selected=$(skim-files --query "${LBUFFER}")
-  if [[ -n "$selected" ]]; then
-    LBUFFER="${LBUFFER}${selected}"
-  fi
-  zle reset-prompt
+  local sb="$BUFFER" sc="$CURSOR"; zle -I
+  local r; r=$(skim-files)
+  if [[ -n "$r" ]]; then
+    [[ -n "$LBUFFER" && "${LBUFFER: -1}" != " " ]] && LBUFFER+=" "
+    LBUFFER+="$r"
+  else BUFFER="$sb"; CURSOR="$sc"; fi; zle reset-prompt
 }
-zle -N skim-files-widget
-bindkey '^T' skim-files-widget
+zle -N skim-files-widget; bindkey '^T' skim-files-widget
 
-# Ctrl+F: Search file contents (via skim-content Rust binary)
-# skim-content outputs a ready-to-eval editor command or nothing on abort.
 skim-content-widget() {
-  local saved_buffer="$BUFFER" saved_cursor="$CURSOR"
-  zle -I
-  local cmd
-  cmd=$(skim-content --query "${LBUFFER}")
-  if [[ -n "$cmd" ]]; then
-    BUFFER="$cmd"
-    zle accept-line
-  else
-    BUFFER="$saved_buffer"
-    CURSOR="$saved_cursor"
-  fi
-  zle reset-prompt
+  local sb="$BUFFER" sc="$CURSOR"; zle -I
+  local r; r=$(skim-content --query "${LBUFFER}")
+  if [[ -n "$r" ]]; then BUFFER="$r"; zle accept-line
+  else BUFFER="$sb"; CURSOR="$sc"; fi; zle reset-prompt
 }
-zle -N skim-content-widget
-bindkey '^F' skim-content-widget
+zle -N skim-content-widget; bindkey '^F' skim-content-widget
+
+skim-cd-widget() {
+  local sb="$BUFFER" sc="$CURSOR"; zle -I
+  local r; r=$(skim-cd)
+  if [[ -n "$r" ]]; then BUFFER="cd $r"; zle accept-line
+  else BUFFER="$sb"; CURSOR="$sc"; fi; zle reset-prompt
+}
+zle -N skim-cd-widget; bindkey '\ec' skim-cd-widget

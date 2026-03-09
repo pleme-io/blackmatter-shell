@@ -1,65 +1,34 @@
-# fzf-tab - Replace zsh completion menu with fuzzy finder
-# Backend: skim-tab (Rust bridge that fixes skim's --expect output protocol)
+# fzf-tab — fuzzy completion with skim-tab backend
 
-# Plugin path
 FZF_TAB_PLUGIN_PATH="$HOME/.local/share/shell/plugins/aloxaf/fzf-tab"
-
-# Load plugin (must be after compinit)
 [[ -f "$FZF_TAB_PLUGIN_PATH/fzf-tab.plugin.zsh" ]] && \
   source "$FZF_TAB_PLUGIN_PATH/fzf-tab.plugin.zsh"
 
-# ===== SKIM-TAB BACKEND + NORD THEME =====
-
-# Use skim-tab — purpose-built fzf protocol bridge for skim.
-# skim's --expect is deprecated in 3.x and doesn't output the empty key line
-# for Enter that fzf-tab requires. skim-tab converts --expect to --bind accept
-# and formats output in the exact fzf protocol.
+# Backend: skim-tab (Rust bridge that fixes skim's --expect protocol for fzf-tab)
 zstyle ':fzf-tab:*' fzf-command skim-tab
-
-# Inherit Nord colors from FZF_DEFAULT_OPTS (bridged from SKIM_DEFAULT_OPTIONS)
 zstyle ':fzf-tab:*' use-fzf-default-opts yes
-
-# Switch group with < and >
 zstyle ':fzf-tab:*' switch-group '<' '>'
-
-# Disable sort for completion results (preserve zsh's native ordering)
-# Use Arinae algorithm for typo-resistant matching and path-aware scheme for file completions
 zstyle ':fzf-tab:*' fzf-flags --no-sort
-zstyle ':fzf-tab:complete:cd:*' fzf-flags --no-sort --scheme=path
-zstyle ':fzf-tab:complete:pushd:*' fzf-flags --no-sort --scheme=path
-zstyle ':fzf-tab:complete:z:*' fzf-flags --no-sort --scheme=path
 
-# ===== PREVIEW CONFIGURATION =====
+# Path-aware matching for navigation commands
+zstyle ':fzf-tab:complete:(cd|pushd|z):*' fzf-flags --no-sort --scheme=path
 
-# Directory preview with eza tree
-zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza --tree --level=2 --icons --color=always $realpath 2>/dev/null'
-zstyle ':fzf-tab:complete:pushd:*' fzf-preview 'eza --tree --level=2 --icons --color=always $realpath 2>/dev/null'
-zstyle ':fzf-tab:complete:z:*' fzf-preview 'eza --tree --level=2 --icons --color=always $realpath 2>/dev/null'
-
-# File preview with bat
+# Previews — use ${realpath:-$word} to handle missing realdir gracefully
+zstyle ':fzf-tab:complete:(cd|pushd|z):*' fzf-preview \
+  'eza --tree --level=2 --icons --color=always ${realpath:-$word} 2>/dev/null || ls -la ${realpath:-$word} 2>/dev/null'
 zstyle ':fzf-tab:complete:*:*' fzf-preview \
-  'if [[ -d $realpath ]]; then eza --tree --level=2 --icons --color=always $realpath 2>/dev/null; elif [[ -f $realpath ]]; then bat --color=always --style=numbers --line-range=:200 $realpath 2>/dev/null; fi'
-
-# Process preview
+  'if [[ -d ${realpath:-$word} ]]; then eza --tree --level=2 --icons --color=always ${realpath:-$word} 2>/dev/null; elif [[ -f ${realpath:-$word} ]]; then bat --color=always --style=numbers --line-range=:200 ${realpath:-$word} 2>/dev/null; fi'
 zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-preview \
-  '[[ $group == "[process ID]" ]] && ps -p $word -o comm,pid,ppid,%cpu,%mem,start,time,command'
+  '[[ $group == "[process ID]" ]] && ps -p $word -o comm,pid,ppid,%cpu,%mem,start,time,command 2>/dev/null'
 zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-flags --preview-window=down:3:wrap
-
-# Environment variable preview
 zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' fzf-preview \
-  'echo ${(P)word}'
-
-# Git preview
+  'echo ${(P)word} 2>/dev/null'
 zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview \
-  'git diff $word | delta --width=${FZF_PREVIEW_COLUMNS:-80} 2>/dev/null'
+  'git diff $word 2>/dev/null | delta --width=${FZF_PREVIEW_COLUMNS:-80} 2>/dev/null'
 zstyle ':fzf-tab:complete:git-log:*' fzf-preview \
   'git log --oneline --graph --color=always $word 2>/dev/null'
 zstyle ':fzf-tab:complete:git-checkout:*' fzf-preview \
   'case "$group" in
-    "modified file") git diff $word | delta --width=${FZF_PREVIEW_COLUMNS:-80} 2>/dev/null ;;
-    "recent commit object name") git log --oneline --graph --color=always $word 2>/dev/null ;;
+    "modified file") git diff $word 2>/dev/null | delta --width=${FZF_PREVIEW_COLUMNS:-80} 2>/dev/null ;;
     *) git log --oneline --graph --color=always $word 2>/dev/null ;;
   esac'
-
-# systemctl preview (Linux)
-zstyle ':fzf-tab:complete:systemctl-*:*' fzf-preview 'SYSTEMD_COLORS=1 systemctl status $word 2>/dev/null'

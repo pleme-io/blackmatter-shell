@@ -64,6 +64,50 @@ alias neofetch='macchina'
 alias mcat='mdcat'
 alias fm='yazi'
 
+# Rust fuzzy selectors (skim-tab binaries)
+alias fvim='skim-fvim'
+alias fco='skim-fco'
+alias fkill='skim-fkill'
+
+# Rust tool wrappers (replace autoload functions)
+alias bench='hyperfine'
+alias compress='ouch compress'
+alias extract='ouch decompress'
+alias duh='dust -d 1'
+alias grepc='rg -C 3'
+alias histstat='atuin stats'
+alias ff='fd --type f --hidden --follow --exclude .git'
+alias fdir='fd --type d --hidden --follow --exclude .git'
+alias serve='miniserve --index index.html'
+alias myip='curl -s https://api.ipify.org && echo'
+alias b64encode='base64'
+alias b64decode='base64 -d'
+alias pingweb='curl -o /dev/null -s -w "Response time: %{time_total}s\n"'
+
+# Rust utility binaries (skim-tab crate)
+alias kexec='kubectl exec -it $(skim-kpod) -- /bin/bash'
+alias klog='kubectl logs -f $(skim-kpod)'
+
+# Docker management
+alias docker-clean='docker container prune -f && docker image prune -f && docker volume prune -f && docker network prune -f'
+alias docker-rm-all='docker rm $(docker ps -a -q)'
+alias docker-stop-all='docker stop $(docker ps -q)'
+
+# Git shortcuts (inline functions — too small for autoload)
+gac()  { git add --all && git commit -m "$*"; }
+gacp() { git add --all && git commit -m "$*" && git push; }
+gct()  { git commit -m "$* - $(date '+%Y-%m-%d %H:%M:%S')"; }
+backup() { cp "$1" "${1}.backup.$(date +%Y%m%d_%H%M%S)"; }
+weather() { curl -s "wttr.in/${1:-}?format=3"; }
+nix-shell-pkg() { nix-shell -p "$@" --run zsh; }
+nix-info() { nix search nixpkgs "$1" --json | jaq -r '.[] | "\(.pname) (\(.version))\n  \(.description)\n"'; }
+gcl()  { git clone "$1" && cd "$(basename "$1" .git)"; }
+mkcd() { mkdir -p "$1" && cd "$1"; }
+json() { if [ -t 0 ]; then echo "$@" | jaq .; else jaq .; fi; }
+calc() { awk "BEGIN{printf \"%.10g\n\", $*}"; }
+urlencode() { printf '%s' "$1" | jaq -Rr @uri; }
+urldecode() { printf '%b\n' "${1//%/\\x}"; }
+
 # Git TUI
 alias lg='lazygit'
 alias gg='lazygit'

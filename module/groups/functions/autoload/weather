@@ -1,2 +1,0 @@
-local city="${1:-}"
-curl -s "wttr.in/${city}?format=3"

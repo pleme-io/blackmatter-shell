@@ -173,13 +173,7 @@
     add-zsh-hook precmd __blackmatter_deferred
     source ${./module/groups/editor/init.zsh}
     source ${./module/groups/aliases/init.zsh}
-    # Functions: inline fpath with store path (replaces functions/init.zsh which hardcodes $HOME)
-    # Store path is immutable — auto-discover all functions, no manual list needed
-    local fn_dir="${./module/groups/functions/autoload}"
-    if [[ -d "$fn_dir" ]]; then
-      fpath=("$fn_dir" ''${fpath[@]})
-      autoload -Uz $fn_dir/*(:t)
-    fi
+    # Functions are inlined in aliases/init.zsh — no separate autoload directory.
     # ===== LOCAL OVERRIDES =====
     # Machine-specific aliases, env vars, tweaks (written by home-manager components)
     # e.g. ssh-aliases.zsh, cid.zsh — each component writes its own named file

@@ -98,13 +98,9 @@ with lib; let
     [[ -f ~/.config/shell/groups/editor/init.zsh ]] && \
       source ~/.config/shell/groups/editor/init.zsh
 
-    # Load aliases
+    # Load aliases + inline functions (all functions inlined here, no autoload)
     [[ -f ~/.config/shell/groups/aliases/init.zsh ]] && \
       source ~/.config/shell/groups/aliases/init.zsh
-
-    # Load functions (autoloaded on first call)
-    [[ -f ~/.config/shell/groups/functions/init.zsh ]] && \
-      source ~/.config/shell/groups/functions/init.zsh
 
     # ===== LOCAL OVERRIDES =====
     # Drop files into ~/.config/shell/local.d/*.zsh for machine-specific aliases,

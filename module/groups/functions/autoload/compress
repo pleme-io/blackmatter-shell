@@ -1,5 +1,0 @@
-if [ -z "$1" ]; then
-  echo "Usage: compress <file|directory> [output.tar.gz]"
-  return 1
-fi
-ouch compress "$@"

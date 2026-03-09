@@ -17,7 +17,7 @@ zstyle ':fzf-tab:complete:(cd|pushd|z):*' fzf-flags --no-sort --scheme=path
 zstyle ':fzf-tab:complete:(cd|pushd|z):*' fzf-preview \
   'eza --tree --level=2 --icons --color=always ${realpath:-$word} 2>/dev/null || ls -la ${realpath:-$word} 2>/dev/null'
 zstyle ':fzf-tab:complete:*:*' fzf-preview \
-  'if [[ -d ${realpath:-$word} ]]; then eza --tree --level=2 --icons --color=always ${realpath:-$word} 2>/dev/null; elif [[ -f ${realpath:-$word} ]]; then bat --color=always --style=numbers --line-range=:200 ${realpath:-$word} 2>/dev/null; fi'
+  'local p="${realpath:-$word}"; [[ -z "$p" ]] && exit 0; if [[ -d "$p" ]]; then eza --tree --level=2 --icons --color=always "$p" 2>/dev/null; elif [[ -f "$p" ]]; then bat --color=always --style=numbers --line-range=:200 "$p" 2>/dev/null; fi'
 zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-preview \
   '[[ $group == "[process ID]" ]] && ps -p $word -o comm,pid,ppid,%cpu,%mem,start,time,command 2>/dev/null'
 zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-flags --preview-window=down:3:wrap

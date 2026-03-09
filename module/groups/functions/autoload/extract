@@ -1,5 +1,0 @@
-if [ -z "$1" ]; then
-  echo "Usage: extract <archive> [archive...]"
-  return 1
-fi
-ouch decompress "$@"

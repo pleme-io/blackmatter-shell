@@ -121,25 +121,4 @@ if [[ -z "$_BLZSH_FZF_KEYS_LOADED" ]] && command -v fzf &> /dev/null; then
   fi
 fi
 
-# Custom keybinding: Ctrl+F for file content search
-fzf-file-content-widget() {
-  local selected file line
-  if command -v rg &> /dev/null; then
-    selected=$(rg --color=always --line-number --no-heading --smart-case "${*:-}" 2>/dev/null |
-      fzf --ansi \
-          --delimiter : \
-          --preview 'bat --color=always --style=numbers --highlight-line {2} {1}' \
-          --preview-window 'up,60%,border-rounded,+{2}+3/3,~3' \
-          --header 'Ctrl+F: Search in files | CTRL-/: Toggle Preview')
-    if [[ -n "$selected" ]]; then
-      file=$(echo "$selected" | cut -d: -f1)
-      line=$(echo "$selected" | cut -d: -f2)
-      ${EDITOR:-vim} "+${line}" "$file"
-    fi
-  else
-    echo "rg (ripgrep) not found. Install it for file content search."
-  fi
-}
-
-zle -N fzf-file-content-widget
-bindkey '^F' fzf-file-content-widget
+# Ctrl+F: handled by skim plugin (skim-content Rust binary) — no fzf implementation

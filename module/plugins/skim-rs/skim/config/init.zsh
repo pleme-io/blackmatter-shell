@@ -68,20 +68,21 @@ skim-files-widget() {
 zle -N skim-files-widget
 bindkey '^T' skim-files-widget
 
-# Ctrl+F: Search file contents with ripgrep + bat preview
-skim-file-content-widget() {
-  local selected file line
-  selected=$(rg --color=always --line-number --no-heading --smart-case "${*:-}" 2>/dev/null |
-    sk --ansi \
-        --delimiter : \
-        --preview 'bat --color=always --style=numbers --highlight-line {2} {1}' \
-        --preview-window 'up,60%,border-rounded,+{2}+3/3,~3' \
-        --header 'Ctrl+F: Search in files | CTRL-/: Toggle Preview')
-  if [[ -n "$selected" ]]; then
-    file=$(echo "$selected" | cut -d: -f1)
-    line=$(echo "$selected" | cut -d: -f2)
-    ${EDITOR:-nvim} "+${line}" "$file"
+# Ctrl+F: Search file contents (via skim-content Rust binary)
+# skim-content outputs a ready-to-eval editor command or nothing on abort.
+skim-content-widget() {
+  local saved_buffer="$BUFFER" saved_cursor="$CURSOR"
+  zle -I
+  local cmd
+  cmd=$(skim-content --query "${LBUFFER}")
+  if [[ -n "$cmd" ]]; then
+    BUFFER="$cmd"
+    zle accept-line
+  else
+    BUFFER="$saved_buffer"
+    CURSOR="$saved_cursor"
   fi
+  zle reset-prompt
 }
-zle -N skim-file-content-widget
-bindkey '^F' skim-file-content-widget
+zle -N skim-content-widget
+bindkey '^F' skim-content-widget

@@ -64,6 +64,17 @@ alias neofetch='macchina'
 alias mcat='mdcat'
 alias fm='yazi'
 
+# Phase 7 Rust tools
+alias calc='fend'
+alias rga='ripgrep-all'
+alias tspin='tailspin'
+alias csv='csvlens'
+alias changelog='git-cliff'
+alias spellcheck='typos'
+alias cleanup='kondo'
+alias br='broot'
+alias loadtest='oha'
+
 # Rust fuzzy selectors (skim-tab binaries)
 alias fvim='skim-fvim'
 alias fco='skim-fco'
@@ -104,7 +115,6 @@ nix-info() { nix search nixpkgs "$1" --json | jaq -r '.[] | "\(.pname) (\(.versi
 gcl()  { git clone "$1" && cd "$(basename "$1" .git)"; }
 mkcd() { mkdir -p "$1" && cd "$1"; }
 json() { if [ -t 0 ]; then echo "$@" | jaq .; else jaq .; fi; }
-calc() { awk "BEGIN{printf \"%.10g\n\", $*}"; }
 urlencode() { printf '%s' "$1" | jaq -Rr @uri; }
 urldecode() { printf '%b\n' "${1//%/\\x}"; }
 

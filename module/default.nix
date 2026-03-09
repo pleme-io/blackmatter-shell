@@ -249,12 +249,33 @@ in {
         bandwhich # Network bandwidth monitor by process
         trippy # Better traceroute/mtr - network diagnostics
         gping # Graphical ping with chart
+        oha # HTTP load generator - wrk/ab replacement
+        hurl # HTTP request runner from plain text files
 
         # Development tools (Rust)
         just # Better make - command runner
         watchexec # File watcher - run commands on changes
         miniserve # HTTP file server - serve directories instantly
         yazi # Terminal file manager - fast and full-featured
+        bacon # Background Rust code checker
+        cargo-nextest # Better cargo test - parallel, filtered
+        mprocs # Run multiple processes in a TUI
+        ast-grep # Structural code search/lint via AST patterns
+        git-cliff # Changelog generator from conventional commits
+        sccache # Shared compilation cache for Rust/C/C++
+        typos # Source code spell checker - fast, low false positives
+
+        # Data tools (Rust)
+        csvlens # CSV viewer in terminal - interactive
+        htmlq # jq for HTML - CSS selector extraction
+        fend # Unit-aware calculator - replaces bc/calc
+        tailspin # Log file highlighter with auto-detection
+
+        # Disk/cleanup tools (Rust)
+        kondo # Disk cleaner - removes node_modules, target/, etc.
+        broot # Better tree - interactive file navigator
+        ripgrep-all # rg over PDFs, archives, docs, subtitles
+        pueue # Task queue daemon - long-running background jobs
 
         # Development tools
         direnv # Directory-specific environments

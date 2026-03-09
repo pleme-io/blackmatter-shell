@@ -104,11 +104,28 @@
       bandwhich
       trippy
       gping
+      oha
+      hurl
       just
       watchexec
       miniserve
       yazi
       lazygit
+      bacon
+      cargo-nextest
+      mprocs
+      ast-grep
+      git-cliff
+      sccache
+      typos
+      csvlens
+      htmlq
+      fend
+      tailspin
+      kondo
+      broot
+      ripgrep-all
+      pueue
 
       # ── Shell infrastructure ──
       direnv

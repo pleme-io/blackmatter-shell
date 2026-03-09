@@ -1,7 +1,6 @@
-# skim — Rust fuzzy finder with Arinae algorithm and Nord theme
+# skim — Rust fuzzy finder with Nord theme
 
 export SKIM_DEFAULT_OPTIONS="
-  --algo=arinae
   --height 30%
   --layout=reverse
   --border=rounded
@@ -42,16 +41,10 @@ export SKIM_ALT_C_OPTS="
   --header 'ALT-C: Change Directory'
 "
 
-# Ctrl+R: Fuzzy history search
+# Ctrl+R: Fuzzy history search (via skim-history Rust binary)
 skim-history-widget() {
   local selected
-  selected=$(fc -rl 1 |
-    awk '{ cmd=$0; sub(/^[ ]*[0-9]*\*?[ ]*/, "", cmd); if (!seen[cmd]++) print cmd }' |
-    sk --scheme=history \
-        --query="${LBUFFER}" \
-        --no-sort \
-        --tiebreak=index \
-        --header 'Ctrl+R: History Search')
+  selected=$(skim-history --query "${LBUFFER}")
   if [[ -n "$selected" ]]; then
     LBUFFER="$selected"
     RBUFFER=""

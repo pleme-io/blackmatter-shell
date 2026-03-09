@@ -53,10 +53,6 @@ in {
 
     (mkIf cfg.functions.enable {
       xdg.configFile."shell/groups/functions/init.zsh".source = ./functions/init.zsh;
-      xdg.configFile."shell/groups/functions/autoload" = {
-        source = ./functions/autoload;
-        recursive = true;
-      };
     })
   ]);
 }

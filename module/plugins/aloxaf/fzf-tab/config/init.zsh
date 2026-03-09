@@ -13,22 +13,19 @@ zstyle ':fzf-tab:*' fzf-flags --no-sort
 # Path-aware matching for navigation commands
 zstyle ':fzf-tab:complete:(cd|pushd|z):*' fzf-flags --no-sort --scheme=path
 
-# Previews — use ${realpath:-$word} to handle missing realdir gracefully
+# Previews — all delegated to Rust binaries (no shell syntax in preview commands)
 zstyle ':fzf-tab:complete:(cd|pushd|z):*' fzf-preview \
-  'eza --tree --level=2 --icons --color=always ${realpath:-$word} 2>/dev/null || ls -la ${realpath:-$word} 2>/dev/null'
+  'blx-preview-dir ${realpath:-$word}'
 zstyle ':fzf-tab:complete:*:*' fzf-preview \
-  'local p="${realpath:-$word}"; [[ -z "$p" ]] && exit 0; if [[ -d "$p" ]]; then eza --tree --level=2 --icons --color=always "$p" 2>/dev/null; elif [[ -f "$p" ]]; then bat --color=always --style=numbers --line-range=:200 "$p" 2>/dev/null; fi'
+  'blx-preview ${realpath:-$word}'
 zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-preview \
-  '[[ $group == "[process ID]" ]] && ps -p $word -o comm,pid,ppid,%cpu,%mem,start,time,command 2>/dev/null'
+  'blx-preview-proc $group $word'
 zstyle ':fzf-tab:complete:(kill|ps):argument-rest' fzf-flags --preview-window=down:3:wrap
 zstyle ':fzf-tab:complete:(-command-|-parameter-|-brace-parameter-|export|unset|expand):*' fzf-preview \
   'echo ${(P)word} 2>/dev/null'
 zstyle ':fzf-tab:complete:git-(add|diff|restore):*' fzf-preview \
-  'git diff $word 2>/dev/null | delta --width=${FZF_PREVIEW_COLUMNS:-80} 2>/dev/null'
+  'blx-preview-git diff $word'
 zstyle ':fzf-tab:complete:git-log:*' fzf-preview \
-  'git log --oneline --graph --color=always $word 2>/dev/null'
+  'blx-preview-git log $word'
 zstyle ':fzf-tab:complete:git-checkout:*' fzf-preview \
-  'case "$group" in
-    "modified file") git diff $word 2>/dev/null | delta --width=${FZF_PREVIEW_COLUMNS:-80} 2>/dev/null ;;
-    *) git log --oneline --graph --color=always $word 2>/dev/null ;;
-  esac'
+  'blx-preview-git checkout $word $group'

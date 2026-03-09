@@ -8,12 +8,16 @@ alias nvim='blnvim'
 alias vimdiff='blnvim -d'
 
 # ===== RUST POWER TOOLS =====
-# Drop-in replacements where flag syntax is compatible.
-# Tools with incompatible flags (fd, rg, sd, difft) keep their own names.
+# Drop-in replacements. Tools with incompatible flags (fd, sd, difft)
+# keep their own names; grep → rg is aliased because rg handles basic
+# grep patterns and the speed gain justifies learning rg flags.
 
 # bat → cat
 alias cat='bat --style=plain --paging=never'
 alias catt='bat'
+
+# ripgrep → grep
+alias grep='rg'
 
 # eza → ls family
 alias l='eza --icons --group-directories-first'

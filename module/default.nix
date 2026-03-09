@@ -160,10 +160,10 @@ with lib; let
       alias ll='eza -l --icons --group-directories-first'
       alias la='eza -la --icons --group-directories-first'
       alias cat='bat --style=plain --paging=never'
-      # Note: find and grep are intentionally NOT aliased here.
-      # fd and rg have incompatible flag syntax with POSIX find/grep,
-      # which breaks scripts and tool integrations that rely on standard flags.
-      # Use fd/rg directly from the command line when you want them.
+      alias grep='rg'
+      # Note: find is intentionally NOT aliased (fd flags are incompatible).
+      # grep→rg is safe here because the interactive guard above prevents
+      # non-interactive scripts from seeing this alias.
     fi
   '';
 
@@ -204,6 +204,7 @@ in {
       [
         cfg.package
         # Core tools (required by aliases, functions, plugins)
+        coreutils # GNU wc, sort, cut, etc. — don't rely on macOS /usr/bin
         git
         curl
         (lib.lowPrio python312) # lowPrio: avoids bin/idle conflict with python312.withPackages from nvim LSP

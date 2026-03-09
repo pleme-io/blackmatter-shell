@@ -109,6 +109,7 @@
   toolsPath = lib.makeBinPath (with pkgs;
     [
       # ── Core tools (required by aliases, functions, plugins) ──
+      coreutils # GNU wc, sort, cut, etc.
       git
       curl
       python3

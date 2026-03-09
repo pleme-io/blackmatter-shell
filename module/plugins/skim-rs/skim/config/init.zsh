@@ -44,6 +44,7 @@ export SKIM_ALT_C_OPTS="
 # Ctrl+R: Fuzzy history search (via skim-history Rust binary)
 skim-history-widget() {
   local selected
+  zle -I
   selected=$(skim-history --query "${LBUFFER}")
   if [[ -n "$selected" ]]; then
     LBUFFER="$selected"

@@ -42,12 +42,12 @@ All plugins are fetched at build time via `builtins.fetchGit` or nixpkgs — no 
 | skim | 30 | Fuzzy finder (Rust) with keybindings and completion |
 | fzf-tab | 35 | Replace zsh completion menu with skim-tab (Rust bridge) |
 | zoxide | 40 | Smart `cd` that learns your habits |
-| zsh-autosuggestions | 80 | Fish-like inline suggestions (deferred) |
-| direnv | 90 | Per-directory environments with nix-direnv (deferred) |
+| atuin | 50 | Shell history sync and search (Rust — replaces zsh-autosuggestions) |
+| direnv | 90 | Per-directory environments with nix-direnv |
 | zsh-syntax-highlighting | 90 | Command syntax highlighting (deferred) |
 | starship | 95 | Cross-shell prompt with Nord theme (deferred) |
 
-Plugins at priority 80+ are deferred — they load after the first prompt paints for faster perceived startup.
+Plugins at priority 90+ are deferred — they load after the first prompt paints for faster perceived startup.
 
 ## Groups
 
@@ -157,10 +157,10 @@ blackmatter-shell/
     ├── plugins/
     │   ├── registry.nix     # Plugin auto-discovery and option generation
     │   ├── direnv/direnv/   # Directory environments
-    │   ├── junegunn/fzf/    # Fuzzy finder
-    │   ├── aloxaf/fzf-tab/  # fzf-powered completion
+    │   ├── skim-rs/skim/    # Fuzzy finder (Rust — replaces fzf)
+    │   ├── aloxaf/fzf-tab/  # Fuzzy completion (skim-tab backend)
     │   ├── ajeetdsouza/zoxide/  # Smart cd
-    │   ├── zsh-users/zsh-autosuggestions/
+    │   ├── atuinsh/atuin/   # Shell history (Rust — replaces zsh-autosuggestions)
     │   ├── zsh-users/zsh-syntax-highlighting/
     │   └── starship/starship/   # Prompt (includes starship.toml)
     ├── groups/
@@ -170,10 +170,9 @@ blackmatter-shell/
     │   ├── aliases/         # 100+ aliases with conditional blnvim support
     │   └── functions/       # 40+ autoload functions
     ├── packages/            # Optional language/ecosystem package sets
-    ├── tools/               # Additional shell tools
-    ├── background/          # Background job management
-    ├── envrc/               # Direnv .envrc deployment
-    └── tmux/                # Tmux configuration (platform-specific)
+    ├── tools/               # Core tool integrations (jq, direnv)
+    ├── background/          # Nord wallpapers
+    └── tmux/                # Tmux configuration (opt-in)
 ```
 
 ## Two Build Modes

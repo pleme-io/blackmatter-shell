@@ -185,11 +185,10 @@ in {
   imports = [
     ./plugins/registry.nix # Shell plugin registry with auto-discovery
     ./groups # Shell groups for logical organization
-    ./packages # Keep existing package management
-    ./background # Keep existing background component
-    ./tools # Keep existing tools
-    ./envrc # Keep existing envrc
-    ./tmux # Keep existing tmux
+    ./packages # Package management (ecosystem-specific tools)
+    ./background # Nord wallpapers
+    ./tools # Core tool integrations (jq, direnv)
+    ./tmux # Tmux (opt-in, disabled by default)
     ./direnv-lib # Custom direnv use_* functions (use_tend, use_workspace)
   ];
 

@@ -6,7 +6,7 @@
 }:
 with lib; let
   cfg = config.blackmatter.components.shell.packages;
-  inherit (pkgs.stdenv.hostPlatform) isLinux isDarwin;
+  inherit (pkgs.stdenv.hostPlatform) isLinux;
 in {
   imports = [
     ./ecosystems  # New ecosystem-based organization
@@ -45,12 +45,7 @@ in {
     (mkIf cfg.enable {
       home.packages = with pkgs;
         [
-          # Core tools (both platforms)
-          ripgrep
-          # claude-code moved to blackmatter-claude module for centralized version management
-
           # Essential LSP servers (for Claude Code integration)
-          # These are always available regardless of language-specific package options
           rust-analyzer                             # Rust LSP
           nodePackages.typescript-language-server   # TypeScript/JavaScript LSP
           nodePackages.typescript                   # Required by TS LSP
@@ -59,7 +54,6 @@ in {
           gopls                                     # Go LSP
           lua-language-server                       # Lua LSP
         ]
-        ++ lib.optionals isDarwin []
         ++ lib.optionals isLinux [
           # python313Packages.huggingface-hub  # Disabled: mypy incompatible with python3.13
           nix-prefetch-git
@@ -69,19 +63,13 @@ in {
           llama-cpp
           gnumake
           # awscli2 # Disabled: slow test suite hangs builds
-          lazygit
           bundix
-          zoxide
-          delta
-          cargo
           arion
           sops
           xsel
           nmap
-          tree
           mpv
           dig
-          fzf
           tor
           gh
         ];

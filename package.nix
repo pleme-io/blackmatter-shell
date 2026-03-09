@@ -3,9 +3,22 @@
   lib,
   blackmatter-nvim,
   skim-tab,
+  blx,
 }: let
   blnvim = blackmatter-nvim.packages.${pkgs.system}.blnvim;
   skimTabBin = skim-tab.packages.${pkgs.system}.default;
+  blxBin = pkgs.symlinkJoin {
+    name = "blx-with-multicall";
+    paths = [ blx.packages.${pkgs.system}.default ];
+    postBuild = ''
+      cd $out/bin
+      for name in blx-ls blx-backup blx-weather blx-json \
+                  blx-urlencode blx-urldecode \
+                  blx-preview blx-preview-dir blx-preview-proc blx-preview-git; do
+        ln -sf blx "$name"
+      done
+    '';
+  };
   # GitHub plugin sources (same revs as plugin declarations in registry)
   fzfTabSrc = fetchGit {
     url = "https://github.com/Aloxaf/fzf-tab";
@@ -162,6 +175,7 @@
       starship
       zsh
       blnvim
+      blxBin
     ]
     ++ lib.optionals pkgs.stdenv.isLinux [pkgs.gitui]);
 

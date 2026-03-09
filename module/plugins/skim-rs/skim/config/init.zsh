@@ -42,6 +42,25 @@ export SKIM_ALT_C_OPTS="
   --header 'ALT-C: Change Directory'
 "
 
+# Ctrl+R: Fuzzy history search
+skim-history-widget() {
+  local selected
+  selected=$(fc -rl 1 |
+    awk '{ cmd=$0; sub(/^[ ]*[0-9]*\*?[ ]*/, "", cmd); if (!seen[cmd]++) print cmd }' |
+    sk --scheme=history \
+        --query="${LBUFFER}" \
+        --no-sort \
+        --tiebreak=index \
+        --header 'Ctrl+R: History Search')
+  if [[ -n "$selected" ]]; then
+    LBUFFER="$selected"
+    RBUFFER=""
+  fi
+  zle reset-prompt
+}
+zle -N skim-history-widget
+bindkey '^R' skim-history-widget
+
 # Ctrl+F: Search file contents with ripgrep + bat preview
 skim-file-content-widget() {
   local selected file line

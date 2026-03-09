@@ -55,6 +55,19 @@ skim-history-widget() {
 zle -N skim-history-widget
 bindkey '^R' skim-history-widget
 
+# Ctrl+T: Fuzzy file/directory picker (via skim-files Rust binary)
+skim-files-widget() {
+  local selected
+  zle -I
+  selected=$(skim-files --query "${LBUFFER}")
+  if [[ -n "$selected" ]]; then
+    LBUFFER="${LBUFFER}${selected}"
+  fi
+  zle reset-prompt
+}
+zle -N skim-files-widget
+bindkey '^T' skim-files-widget
+
 # Ctrl+F: Search file contents with ripgrep + bat preview
 skim-file-content-widget() {
   local selected file line

@@ -24,31 +24,8 @@ alias lta='eza -la --sort=modified --reverse --icons --group-directories-first'
 alias ltr='eza -l --sort=modified --reverse --icons --group-directories-first'
 alias tree='eza --tree --icons'
 
-# ls wrapper: translates POSIX flags (-ltra) to eza equivalents
-ls() {
-  local -a eza_args=(--icons --group-directories-first)
-  local -a paths=()
-  local has_l=0 has_a=0 has_t=0 has_r=0 has_1=0
-  for arg in "$@"; do
-    if [[ "$arg" == --* ]]; then
-      eza_args+=("$arg")
-    elif [[ "$arg" == -* ]]; then
-      [[ "$arg" == *l* ]] && has_l=1
-      [[ "$arg" == *[aA]* ]] && has_a=1
-      [[ "$arg" == *t* ]] && has_t=1
-      [[ "$arg" == *r* ]] && has_r=1
-      [[ "$arg" == *1* ]] && has_1=1
-    else
-      paths+=("$arg")
-    fi
-  done
-  (( has_l )) && eza_args+=("-l")
-  (( has_a )) && eza_args+=("-a")
-  (( has_t )) && eza_args+=(--sort=modified)
-  (( has_r )) && eza_args+=(--reverse)
-  (( has_1 )) && eza_args+=("-1")
-  eza "${eza_args[@]}" "${paths[@]}"
-}
+# ls wrapper: Rust binary translates POSIX flags (-ltra) to eza equivalents
+alias ls='blx-ls'
 
 # bottom → top/htop
 alias top='btm'
@@ -108,11 +85,11 @@ alias docker-stop-all='docker stop $(docker ps -q)'
 alias gac='git-ac'
 alias gacp='git-acp'
 alias gct='git-ct'
-alias backup='blx file backup'
-alias weather='blx net weather'
-alias json='blx encode json'
-alias urlencode='blx encode url'
-alias urldecode='blx decode url'
+alias backup='blx-backup'
+alias weather='blx-weather'
+alias json='blx-json'
+alias urlencode='blx-urlencode'
+alias urldecode='blx-urldecode'
 
 # Shell functions (require calling shell — cannot be Rust)
 nix-shell-pkg() { nix-shell -p "$@" --run zsh; }

@@ -17,7 +17,7 @@ with lib; let
   pluginDecls = [
     (import ./plugins/direnv/direnv/default.nix)
     (import ./plugins/skim-rs/skim/default.nix)
-    (import ./plugins/aloxaf/fzf-tab/default.nix)
+    (import ./plugins/skim-rs/skim-tab-complete/default.nix)
     (import ./plugins/ajeetdsouza/zoxide/default.nix)
     (import ./plugins/atuinsh/atuin/default.nix)
     (import ./plugins/zsh-users/zsh-syntax-highlighting/default.nix)
@@ -204,7 +204,7 @@ in {
         zoxide # Better cd - smart directory jumping
         skim # Fuzzy finder (Rust replacement for fzf)
       ]
-      ++ lib.optionals (pkgs ? skim-tab) [ pkgs.skim-tab ] # fzf-tab ↔ skim bridge
+      ++ lib.optionals (pkgs ? skim-tab) [ pkgs.skim-tab ] # skim-tab-complete: native fuzzy completion
       ++ [
         atuin # Shell history (Rust replacement for zsh-autosuggestions)
 
@@ -370,7 +370,7 @@ in {
     blackmatter.components.shell.plugins = {
       direnv.direnv.enable = mkDefault true;
       skim-rs.skim.enable = mkDefault true;
-      aloxaf.fzf-tab.enable = mkDefault true;
+      skim-rs.skim-tab-complete.enable = mkDefault true;
       ajeetdsouza.zoxide.enable = mkDefault true;
       atuinsh.atuin.enable = mkDefault true;
       zsh-users.zsh-syntax-highlighting.enable = mkDefault true;

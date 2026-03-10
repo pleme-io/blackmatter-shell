@@ -15,7 +15,7 @@
   pluginDecls = [
     (import ./direnv/direnv/default.nix) # Priority 90
     (import ./skim-rs/skim/default.nix) # Priority 30 (replaces junegunn/fzf)
-    (import ./aloxaf/fzf-tab/default.nix) # Priority 35 (uses skim backend)
+    (import ./skim-rs/skim-tab-complete/default.nix) # Priority 35 (native skim completion)
     (import ./ajeetdsouza/zoxide/default.nix) # Priority 40
     (import ./atuinsh/atuin/default.nix) # Priority 50 (replaces zsh-autosuggestions)
     (import ./zsh-users/zsh-syntax-highlighting/default.nix) # Priority 90 (deferred)

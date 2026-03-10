@@ -3,9 +3,8 @@
 # All logic lives in Rust binaries (skim-history, skim-files, skim-content,
 # skim-cd). Shell is ZLE glue only — save buffer, call binary, restore on abort.
 
-# Nord theme for fzf-tab (the only consumer of these env vars)
+# Nord theme for skim (used by skim CLI and key-bindings.zsh)
 export SKIM_DEFAULT_OPTIONS="--height 30% --layout=reverse --ansi --color=fg:#D8DEE9,bg:#2E3440,hl:#88C0D0:bold:underlined,fg+:#ECEFF4:bold,bg+:#3B4252,hl+:#8FBCBB:bold:underlined,info:#4C566A,prompt:#A3BE8C,pointer:#88C0D0,marker:#B48EAD,spinner:#81A1C1,header:#5E81AC,border:#4C566A,query:#ECEFF4:bold"
-export FZF_DEFAULT_OPTS="$SKIM_DEFAULT_OPTIONS"
 
 # ── ZLE widgets ─────────────────────────────────────────────────────────
 

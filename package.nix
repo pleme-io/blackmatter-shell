@@ -20,27 +20,10 @@
     '';
   };
   # GitHub plugin sources (same revs as plugin declarations in registry)
-  fzfTabSrc = fetchGit {
-    url = "https://github.com/Aloxaf/fzf-tab";
-    rev = "01dad759c4466600b639b442ca24aebd5178e799";
-  };
   zshSynHlSrc = fetchGit {
     url = "https://github.com/zsh-users/zsh-syntax-highlighting";
     rev = "e0165eaa730dd0fa321a6a6de74f092fe87630b0";
   };
-
-  # Patch each GitHub plugin's init.zsh: replace $HOME path with store path
-  fzfTabConfig =
-    pkgs.runCommand "fzf-tab-config"
-    {
-      src = ./module/plugins/aloxaf/fzf-tab/config;
-      inherit fzfTabSrc;
-    }
-    ''
-      cp -r $src $out && chmod -R u+w $out
-      substituteInPlace $out/init.zsh \
-        --replace '$HOME/.local/share/shell/plugins/aloxaf/fzf-tab' "$fzfTabSrc"
-    '';
 
   zshSynHlConfig =
     pkgs.runCommand "zsh-syntax-highlighting-config"
@@ -219,7 +202,7 @@
     source ${pkgs.skim}/share/skim/completion.zsh
     export _BLZSH_SKIM_KEYS_LOADED=1
     source ${./module/plugins/skim-rs/skim/config/init.zsh}            # skim opts + Ctrl+F widget
-    source ${fzfTabConfig}/init.zsh                                     # fzf-tab (35, skim backend)
+    source ${./module/plugins/skim-rs/skim-tab-complete/config/init.zsh}  # skim-tab-complete (35, native skim)
     source ${./module/plugins/ajeetdsouza/zoxide/config/init.zsh}      # zoxide (40)
     source ${./module/plugins/atuinsh/atuin/config/init.zsh}           # atuin (50, replaces autosuggestions)
     source ${./module/plugins/direnv/direnv/config/init.zsh}           # direnv (90)

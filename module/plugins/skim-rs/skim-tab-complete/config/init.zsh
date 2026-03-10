@@ -1,15 +1,17 @@
 # skim-tab-complete — fuzzy tab completion powered by skim-tab (Rust)
 #
-# Replaces fzf-tab. Hooks zsh's compadd to capture candidates in compcap
-# format, pipes binary data to skim-tab --complete --compcap (Rust),
-# reads eval-friendly output, applies. All logic is in Rust — zsh is
-# just the compadd hook + ZLE glue (~90 lines).
+# Two-phase architecture (same as fzf-tab):
+#   Phase 1: Hook compadd to capture candidates during _main_complete.
+#            Do NOT run skim here — ZLE owns the terminal.
+#   Between: Widget runs skim OUTSIDE completion context (zle -I).
+#   Phase 2: Apply selection via builtin compadd in a fresh completion context.
 
 zmodload zsh/zutil
 
 typeset -ga _stc_compcap=()
 typeset -ga _stc_groups=()
 typeset -g  _stc_curcontext=''
+typeset -g  _stc_query=''
 typeset -g  _stc_response=''
 typeset -gi IN_SKIM_TAB=0
 
@@ -64,7 +66,7 @@ typeset -gi IN_SKIM_TAB=0
   builtin compadd "$@"
 }
 
-# ── Completion (hooks _main_complete, calls Rust) ──────────────────────
+# ── Phase 1: Capture candidates (do NOT run skim here) ─────────────────
 
 -stc-complete() {
   local -Ua _stc_groups
@@ -73,33 +75,26 @@ typeset -gi IN_SKIM_TAB=0
   COLUMNS=500 _stc__main_complete "$@"
 
   emulate -L zsh -o extended_glob
-  (( $#_stc_compcap )) || return 1
 
-  local cmd=${_stc_curcontext%%:*}
+  # Save query for skim (PREFIX is only available inside completion context)
+  _stc_query=${PREFIX:-}
 
-  # Pipe compcap binary data to Rust. Output format:
-  #   Line 1: "select" or "abort"
-  #   Lines 2+: word\x1fprefix\x1fsuffix\x1fiprefix\x1fisuffix\x1fargs
-  _stc_response=$(
-    printf '%s\x03' "${_stc_compcap[@]}" | \
-    skim-tab --complete --compcap --command "$cmd" --query "${PREFIX:-}" 2>/dev/null
-  )
-
+  # Suppress default completion display — we'll handle it via skim
   compstate[list]=
   compstate[insert]=
 }
 
-# ── Apply widget (reads Rust output, calls builtin compadd) ────────────
+# ── Phase 2: Apply selection (runs in fresh completion context) ────────
 
 _skim-tab-apply() {
   [[ -n $_stc_response ]] || return 1
 
   local -a lines=("${(@f)_stc_response}")
   local action=$lines[1]
-  [[ $action == select ]] || { unset _stc_response; return 1; }
+  [[ $action == select ]] || { _stc_response=''; return 1; }
 
   local -i count=$(( $#lines - 1 ))
-  (( count > 0 )) || { unset _stc_response; return 1; }
+  (( count > 0 )) || { _stc_response=''; return 1; }
 
   local -i idx
   for idx in {2..$#lines}; do
@@ -128,24 +123,44 @@ _skim-tab-apply() {
     compstate[insert]='all'
   fi
 
-  unset _stc_response
+  _stc_response=''
 }
 
 # ── ZLE widget ─────────────────────────────────────────────────────────
+#
+# Flow:
+#   1. Trigger completion (captures candidates into _stc_compcap)
+#   2. If candidates captured, release terminal (zle -I), run skim
+#   3. If selection made, apply via _skim-tab-apply (fresh completion context)
 
 skim-tab-complete() {
   local -i ret=0
+
+  # Phase 1: capture candidates
   IN_SKIM_TAB=1
-  echoti civis >/dev/tty 2>/dev/null
   {
-    zle .skim-tab-orig-$_stc_orig_widget || ret=$?
-    if (( ! ret )) && [[ -n $_stc_response ]]; then
-      zle _skim-tab-apply || ret=$?
-    fi
+    zle .skim-tab-orig-$_stc_orig_widget
   } always {
     IN_SKIM_TAB=0
   }
-  echoti cnorm >/dev/tty 2>/dev/null
+
+  # Between phases: run skim outside completion context
+  if (( $#_stc_compcap )); then
+    local cmd=${_stc_curcontext%%:*}
+
+    zle -I  # invalidate ZLE display — release terminal for skim
+
+    _stc_response=$(
+      printf '%s\x03' "${_stc_compcap[@]}" | \
+      skim-tab --complete --compcap --command "$cmd" --query "$_stc_query" 2>/dev/tty
+    )
+
+    # Phase 2: apply selection in fresh completion context
+    if [[ -n $_stc_response ]]; then
+      zle _skim-tab-apply || ret=$?
+    fi
+  fi
+
   zle .redisplay
   return $ret
 }

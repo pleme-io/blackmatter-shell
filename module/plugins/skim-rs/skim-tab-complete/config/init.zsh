@@ -12,6 +12,7 @@ typeset -ga _stc_compcap=()
 typeset -ga _stc_groups=()
 typeset -g  _stc_curcontext=''
 typeset -g  _stc_query=''
+typeset -g  _stc_buffer=''
 typeset -g  _stc_response=''
 typeset -gi IN_SKIM_TAB=0
 
@@ -136,6 +137,9 @@ _skim-tab-apply() {
 skim-tab-complete() {
   local -i ret=0
 
+  # Save the command line before completion modifies it
+  _stc_buffer=$LBUFFER
+
   # Phase 1: capture candidates
   IN_SKIM_TAB=1
   {
@@ -152,7 +156,7 @@ skim-tab-complete() {
 
     _stc_response=$(
       printf '%s\x03' "${_stc_compcap[@]}" | \
-      skim-tab --complete --compcap --command "$cmd" --query "$_stc_query" 2>/dev/tty
+      skim-tab --complete --compcap --command "$cmd" --query "$_stc_query" --buffer "$_stc_buffer" 2>/dev/tty
     )
 
     # Phase 2: apply selection in fresh completion context

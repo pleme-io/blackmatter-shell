@@ -11,6 +11,14 @@ with lib; let
     configHome = ". ~/.config/shell/plugins";
   };
 
+  # Compile the Rust shell engine (zero-dep, fast startup)
+  shellEngine = pkgs.runCommand "bm-shell-engine" {
+    nativeBuildInputs = [ pkgs.rustc ];
+  } ''
+    mkdir -p $out/bin
+    rustc --edition 2021 -O -o $out/bin/bm-shell-engine ${./plugin-loader.rs}
+  '';
+
   # Convert Nix value to shell-compatible format (for env vars, arrays, etc.)
   toShellValue = lib.fix (self: val:
     if builtins.isString val
@@ -98,20 +106,21 @@ with lib; let
       ]);
     };
 
-  # Generate source command for a single plugin
-  mkPluginSource = decl: let
+  # Generate source line for a single plugin (flat, no Nix indent nesting)
+  mkSourceLine = decl: let
     author = decl.author;
     name = decl.name;
     nameWithDashes = lib.replaceStrings ["."] ["-"] name;
     initFile = decl.load.initFile or "init.zsh";
-  in ''
-    # ${author}/${name}
-    [[ -f ~/.config/shell/plugins/${author}/${nameWithDashes}/${initFile} ]] && \
-      source ~/.config/shell/plugins/${author}/${nameWithDashes}/${initFile}
-  '';
+    path = "~/.config/shell/plugins/${author}/${nameWithDashes}/${initFile}";
+  in "[[ -f ${path} ]] && source ${path}";
 
   # Generate shell initialization code for enabled plugins
   # Partitions into immediate and deferred (post-first-prompt) loading
+  #
+  # All output is built via explicit string concatenation — no Nix indented
+  # string interpolation of multi-line values, which silently drops indent
+  # on lines after the first and produces malformed zsh function bodies.
   mkPluginInits = pluginDecls: config: let
     # Filter to only enabled plugins
     enabledPlugins = lib.filter (decl:
@@ -127,28 +136,33 @@ with lib; let
     immediatePlugins = lib.filter (decl: !(decl.load.defer or false)) sortedPlugins;
     deferredPlugins = lib.filter (decl: decl.load.defer or false) sortedPlugins;
 
-    # Generate init commands for immediate plugins
-    immediateInits = map mkPluginSource immediatePlugins;
+    # Immediate plugins: one source line per plugin (top-level, no indent)
+    immediateBlock = lib.concatMapStringsSep "\n" (decl:
+      "# ${decl.author}/${decl.name}\n" + mkSourceLine decl
+    ) immediatePlugins;
 
-    # Generate deferred loading block (fires once after first prompt)
+    # Deferred plugins: static function that sources after first prompt
+    # Built line-by-line to avoid Nix indented string interpolation issues
     deferredBlock =
       if deferredPlugins == []
       then ""
       else let
-        deferredInits = map mkPluginSource deferredPlugins;
-      in ''
-
-        # ===== DEFERRED PLUGINS (loaded after first prompt) =====
-        __blackmatter_deferred() {
-          add-zsh-hook -d precmd __blackmatter_deferred
-          unfunction __blackmatter_deferred
-        ${lib.concatStringsSep "" deferredInits}
-        }
-        autoload -Uz add-zsh-hook
-        add-zsh-hook precmd __blackmatter_deferred
-      '';
+        deferredLines = lib.concatMapStringsSep "\n" (decl:
+          "  " + mkSourceLine decl
+        ) deferredPlugins;
+      in lib.concatStringsSep "\n" [
+        ""
+        "# ===== DEFERRED PLUGINS (loaded after first prompt) ====="
+        "__blackmatter_deferred() {"
+        "  add-zsh-hook -d precmd __blackmatter_deferred"
+        "  unfunction __blackmatter_deferred"
+        deferredLines
+        "}"
+        "autoload -Uz add-zsh-hook"
+        "add-zsh-hook precmd __blackmatter_deferred"
+      ];
   in
-    (lib.concatStringsSep "\n" immediateInits) + deferredBlock;
+    immediateBlock + deferredBlock;
 
   # Generate .zshrc with plugin loading
   mkZshrc = pluginDecls: config: let
@@ -169,11 +183,52 @@ with lib; let
       [[ -f "$group" ]] && source "$group"
     done
   '';
+  # Generate a JSON shell engine manifest for the Rust binary.
+  # Uses JSON as a proper machine-readable boundary between Nix and Rust.
+  # The manifest describes all sources, deferred plugins, scan dirs, and
+  # cleanup targets — the Rust engine reads this and outputs correct shell.
+  mkShellManifest = {
+    preSources ? [],      # source paths loaded before plugins
+    pluginDecls ? [],      # plugin declarations (uses config to filter enabled)
+    config,                # home-manager config (for checking enabled plugins)
+    postSources ? [],      # source paths loaded after plugins
+    scanDirs ? [],         # directories to scan for *.zsh at runtime
+    cleanPaths ? [],       # stale cache files to delete
+  }: let
+    enabledPlugins = lib.filter (decl:
+      config.blackmatter.components.shell.plugins.${decl.author}.${lib.replaceStrings ["."] ["-"] decl.name}.enable or false
+    ) pluginDecls;
+
+    sortedPlugins = lib.sort (a: b:
+      (a.load.priority or 50) < (b.load.priority or 50)
+    ) enabledPlugins;
+
+    immediatePlugins = lib.filter (decl: !(decl.load.defer or false)) sortedPlugins;
+    deferredPlugins = lib.filter (decl: decl.load.defer or false) sortedPlugins;
+
+    mkPluginPath = decl: let
+      nameWithDashes = lib.replaceStrings ["."] ["-"] decl.name;
+      initFile = decl.load.initFile or "init.zsh";
+    in "~/.config/shell/plugins/${decl.author}/${nameWithDashes}/${initFile}";
+
+    manifest = {
+      pre_sources = preSources;
+      plugins_immediate = map mkPluginPath immediatePlugins;
+      plugins_deferred = map mkPluginPath deferredPlugins;
+      post_sources = postSources;
+      scan_dirs = scanDirs;
+      clean_paths = cleanPaths;
+    };
+  in builtins.toJSON manifest;
+
 in {
   inherit
     toShellValue
     mkPlugin
+    mkSourceLine
     mkPluginInits
     mkZshrc
+    mkShellManifest
+    shellEngine
     ;
 }

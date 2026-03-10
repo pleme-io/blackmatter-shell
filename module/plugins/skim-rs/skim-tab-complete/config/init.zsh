@@ -10,8 +10,8 @@ zmodload zsh/zutil
 typeset -ga _stc_compcap=()
 typeset -ga _stc_groups=()
 typeset -g  _stc_curcontext=''
-typeset -g  _stc_orig_widget=''
 typeset -g  _stc_response=''
+typeset -gi IN_SKIM_TAB=0
 
 # ── compadd hook (must be zsh — zparseopts is a zsh builtin) ───────────
 
@@ -135,7 +135,7 @@ _skim-tab-apply() {
 
 skim-tab-complete() {
   local -i ret=0
-  local IN_SKIM_TAB=1
+  IN_SKIM_TAB=1
   echoti civis >/dev/tty 2>/dev/null
   {
     zle .skim-tab-orig-$_stc_orig_widget || ret=$?
@@ -154,9 +154,9 @@ skim-tab-complete() {
 
 enable-skim-tab() {
   emulate -L zsh -o extended_glob
-  (( ! $+_stc_orig_widget )) || disable-skim-tab
+  [[ -n $_stc_orig_widget ]] && disable-skim-tab
 
-  _stc_orig_widget="${${$(builtin bindkey '^I')##* }:-expand-or-complete}"
+  typeset -g _stc_orig_widget="${${$(builtin bindkey '^I')##* }:-expand-or-complete}"
   if (( ! $+widgets[.skim-tab-orig-$_stc_orig_widget] )); then
     local compinit_widgets=(
       complete-word delete-char-or-list expand-or-complete

@@ -11,13 +11,14 @@ with lib; let
     configHome = ". ~/.config/shell/plugins";
   };
 
-  # Compile the Rust shell engine (zero-dep, fast startup)
-  shellEngine = pkgs.runCommand "bm-shell-engine" {
-    nativeBuildInputs = [ pkgs.rustc ];
-  } ''
-    mkdir -p $out/bin
-    rustc --edition 2021 -O -o $out/bin/bm-shell-engine ${./plugin-loader.rs}
-  '';
+  # Shell engine — Rust binary with serde_json for proper JSON parsing.
+  # Reads the shell manifest (JSON) and outputs zsh source commands.
+  shellEngine = pkgs.rustPlatform.buildRustPackage {
+    pname = "bm-shell-engine";
+    version = "0.1.0";
+    src = ./shell-engine;
+    cargoLock.lockFile = ./shell-engine/Cargo.lock;
+  };
 
   # Convert Nix value to shell-compatible format (for env vars, arrays, etc.)
   toShellValue = lib.fix (self: val:

@@ -59,7 +59,16 @@ with lib; let
     # Ensure basic system paths are available
     export PATH="/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/nix/var/nix/profiles/default/bin:$PATH"
 
-    # Add user nix profile
+    # Homebrew (when installed) — after system paths, before nix profiles
+    # so nix-managed tools always take precedence over brew equivalents
+    if [[ -x /opt/homebrew/bin/brew ]]; then
+      export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+    elif [[ -x /usr/local/bin/brew ]]; then
+      # Intel Mac fallback
+      export PATH="/usr/local/bin:/usr/local/sbin:$PATH"
+    fi
+
+    # Add user nix profile (highest precedence after HM)
     export PATH="$HOME/.nix-profile/bin:$PATH"
 
     # ===== SHELL CONFIGURATION =====
@@ -133,6 +142,13 @@ with lib; let
       source "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh"
     elif [[ -f "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ]]; then
       source "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
+    fi
+
+    # ===== HOMEBREW (when installed) =====
+    if [[ -x /opt/homebrew/bin/brew ]]; then
+      export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:$PATH"
+    elif [[ -x /usr/local/bin/brew ]]; then
+      export PATH="/usr/local/bin:/usr/local/sbin:$PATH"
     fi
 
     # ===== ZOXIDE INITIALIZATION =====

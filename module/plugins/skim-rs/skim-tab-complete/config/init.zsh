@@ -1,10 +1,17 @@
 # skim-tab-complete — fuzzy tab completion powered by skim-tab (Rust)
 #
-# Two-phase architecture (same as fzf-tab):
-#   Phase 1: Hook compadd to capture candidates during _main_complete.
-#            Do NOT run skim here — ZLE owns the terminal.
-#   Between: Widget runs skim OUTSIDE completion context (zle -I).
-#   Phase 2: Apply selection via builtin compadd in a fresh completion context.
+# Three-path architecture:
+#
+#   Path A (descent): LBUFFER ends with / after a path component (e.g., cd dir/)
+#            → bypass skim, use native zsh completion for correct IPREFIX splitting
+#
+#   Path B (skim):    Normal completion — capture candidates via compadd hook,
+#            run skim-tab (Rust) for fuzzy selection, apply via compadd
+#
+#   Path C (empty):   No candidates captured → do nothing (redisplay)
+#
+# The compadd hook (Phase 1) intercepts zsh's compadd calls to capture
+# candidates. Phase 2 applies the skim selection via builtin compadd.
 
 zmodload zsh/zutil
 
@@ -16,7 +23,9 @@ typeset -g  _stc_buffer=''
 typeset -g  _stc_response=''
 typeset -gi IN_SKIM_TAB=0
 
-# ── compadd hook (must be zsh — zparseopts is a zsh builtin) ───────────
+# ── compadd hook ──────────────────────────────────────────────────────
+# Intercepts compadd calls to capture candidates during Phase 1.
+# Passes through when: not in skim capture, or caller uses -O/-A/-D (probing).
 
 -stc-compadd() {
   local -A apre hpre dscrs _oad
@@ -27,11 +36,13 @@ typeset -gi IN_SKIM_TAB=0
 
   _stc_curcontext=${curcontext#:}
 
+  # Pass through: not capturing, or caller is probing (-O/-A/-D)
   if (( $#_oad != 0 || ! IN_SKIM_TAB )); then
     builtin compadd "$@"
     return
   fi
 
+  # Capture candidates into _stc_compcap
   local -a __hits __dscr
   if (( $#dscrs == 1 )); then
     __dscr=( "${(@P)${(v)dscrs}}" )
@@ -43,6 +54,7 @@ typeset -gi IN_SKIM_TAB=0
   expl=$expl[2]
   [[ -n $expl ]] && _stc_groups+=$expl
 
+  # Build metadata string: key-value pairs separated by NUL
   local -a keys=(apre hpre PREFIX SUFFIX IPREFIX ISUFFIX)
   local key expanded meta=$'<\0>'
   for key in $keys; do
@@ -67,7 +79,10 @@ typeset -gi IN_SKIM_TAB=0
   builtin compadd "$@"
 }
 
-# ── Phase 1: Capture candidates (do NOT run skim here) ─────────────────
+# ── Phase 1: Capture candidates ───────────────────────────────────────
+# Runs _main_complete to trigger all zsh completers. When IN_SKIM_TAB=1,
+# the compadd hook captures candidates and we suppress display.
+# When IN_SKIM_TAB=0 (native fallback), we let zsh display normally.
 
 -stc-complete() {
   local -Ua _stc_groups
@@ -75,8 +90,8 @@ typeset -gi IN_SKIM_TAB=0
 
   COLUMNS=500 _stc__main_complete "$@"
 
-  # Only suppress display when skim-tab is actively capturing (IN_SKIM_TAB=1).
-  # Native fallback (path descent, IN_SKIM_TAB=0) lets zsh display normally.
+  # Only suppress display when skim-tab is actively capturing.
+  # Native fallback (IN_SKIM_TAB=0) lets zsh handle display.
   if (( IN_SKIM_TAB )); then
     emulate -L zsh -o extended_glob
     _stc_query=${PREFIX:-}
@@ -85,7 +100,10 @@ typeset -gi IN_SKIM_TAB=0
   fi
 }
 
-# ── Phase 2: Apply selection (runs in fresh completion context) ────────
+# ── Phase 2: Apply skim selection ─────────────────────────────────────
+# Runs in a fresh completion context. Parses the skim-tab response
+# (7 fields per line: word, prefix, suffix, iprefix, isuffix, args, is_dir)
+# and inserts the selection via builtin compadd.
 
 _skim-tab-apply() {
   [[ -n $_stc_response ]] || return 1
@@ -97,9 +115,9 @@ _skim-tab-apply() {
   local -i count=$(( $#lines - 1 ))
   (( count > 0 )) || { _stc_response=''; return 1; }
 
+  local -i is_dir_selection=0
   local -i idx
   for idx in {2..$#lines}; do
-    # Split on unit separator (\x1f): word prefix suffix iprefix isuffix args
     local -a fields=("${(@ps:\x1f:)lines[$idx]}")
     (( $#fields >= 1 )) || continue
 
@@ -111,6 +129,8 @@ _skim-tab-apply() {
     local sel_args=${fields[6]:-}
     local sel_is_dir=${fields[7]:-}
 
+    [[ $sel_is_dir == "d" ]] && is_dir_selection=1
+
     local -a compadd_args=("${(@ps:\1:)sel_args}")
     [[ -z $compadd_args[1] ]] && compadd_args=()
     IPREFIX=$sel_iprefix PREFIX=$sel_prefix SUFFIX=$sel_suffix ISUFFIX=$sel_isuffix
@@ -120,7 +140,9 @@ _skim-tab-apply() {
   compstate[list]=
   if (( count == 1 )); then
     compstate[insert]='1'
-    if [[ $sel_is_dir != "d" && $RBUFFER != ' '* ]]; then
+    # Directories: no trailing space — next tab triggers path descent.
+    # Rust (skim-tab) detects dirs via stat, appends /, sends "d" in field 7.
+    if (( ! is_dir_selection )) && [[ $RBUFFER != ' '* ]]; then
       compstate[insert]+=' '
     fi
   elif (( count > 1 )); then
@@ -130,29 +152,25 @@ _skim-tab-apply() {
   _stc_response=''
 }
 
-# ── ZLE widget ─────────────────────────────────────────────────────────
-#
-# Flow:
-#   1. Trigger completion (captures candidates into _stc_compcap)
-#   2. If candidates captured, release terminal (zle -I), run skim
-#   3. If selection made, apply via _skim-tab-apply (fresh completion context)
+# ── ZLE widget ────────────────────────────────────────────────────────
 
 skim-tab-complete() {
   local -i ret=0
 
-  # Path descent: if the word ends with /, bypass skim and use native
-  # zsh completion. Native _path_files splits IPREFIX at / correctly,
-  # which our -Q compadd hook cannot replicate. This gives seamless
-  # tab-tab-tab directory descent after the first skim selection.
-  if [[ $LBUFFER == */ ]]; then
+  # Path A — descent: word ends with / after a real path component.
+  # Bypass skim entirely — native zsh splits IPREFIX at / correctly,
+  # which our -Q compadd hook cannot replicate.
+  # Guard: only trigger when there's a non-/ char before the trailing /
+  # (avoids catching bare "cd /" or "cd ~/" as descent).
+  if [[ $LBUFFER =~ [^/[:space:]]/$ ]]; then
     zle .skim-tab-orig-$_stc_orig_widget
     return
   fi
 
-  # Save the command line before completion modifies it
+  # Path B — skim: capture candidates, run Rust fuzzy picker, apply
+
   _stc_buffer=$LBUFFER
 
-  # Phase 1: capture candidates
   IN_SKIM_TAB=1
   {
     zle .skim-tab-orig-$_stc_orig_widget
@@ -160,23 +178,22 @@ skim-tab-complete() {
     IN_SKIM_TAB=0
   }
 
-  # Between phases: run skim outside completion context
   if (( $#_stc_compcap )); then
     local cmd=${_stc_curcontext%%:*}
 
-    zle -I  # invalidate ZLE display — release terminal for skim
+    zle -I  # release terminal for skim TUI
 
     _stc_response=$(
       printf '%s\x03' "${_stc_compcap[@]}" | \
       skim-tab --complete --compcap --command "$cmd" --query "$_stc_query" --buffer "$_stc_buffer" 2>/dev/tty
     )
 
-    # Phase 2: apply selection
     if [[ -n $_stc_response ]]; then
       zle _skim-tab-apply || ret=$?
     fi
   fi
 
+  # Path C — no candidates: redisplay
   zle .redisplay
   return $ret
 }
@@ -231,7 +248,7 @@ disable-skim-tab() {
   functions[_approximate]=$functions[_stc__approximate]
 }
 
-# ── Register ───────────────────────────────────────────────────────────
+# ── Register ──────────────────────────────────────────────────────────
 
 zle -N skim-tab-complete
 zle -C _skim-tab-apply complete-word _skim-tab-apply

@@ -40,6 +40,10 @@ with lib; let
     # This ensures direnv, nix, and all tools work correctly
 
     # Load home-manager session variables (contains environment-specific vars)
+    # Always re-evaluate: the HM guard is exported and persists across subshells,
+    # which prevents secret files (SOPS) from being read if the first shell ran
+    # before secrets were decrypted.
+    unset __HM_SESS_VARS_SOURCED
     # Try multiple locations: nix-darwin per-user profile → standalone HM → nix-profile fallback
     if [[ -f "/etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh" ]]; then
       source "/etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh"
@@ -121,7 +125,8 @@ with lib; let
     # Minimal bash configuration for tool compatibility
 
     # ===== PATH INITIALIZATION =====
-    # Load home-manager session variables
+    # Load home-manager session variables (always re-evaluate for SOPS secrets)
+    unset __HM_SESS_VARS_SOURCED
     if [[ -f "/etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh" ]]; then
       source "/etc/profiles/per-user/$USER/etc/profile.d/hm-session-vars.sh"
     elif [[ -f "$HOME/.local/state/nix/profiles/home-manager/home-path/etc/profile.d/hm-session-vars.sh" ]]; then

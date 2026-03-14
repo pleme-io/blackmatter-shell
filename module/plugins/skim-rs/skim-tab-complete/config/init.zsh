@@ -15,7 +15,6 @@ typeset -g  _stc_query=''
 typeset -g  _stc_buffer=''
 typeset -g  _stc_response=''
 typeset -gi IN_SKIM_TAB=0
-typeset -gi _STC_PASSTHROUGH=0
 
 # ── compadd hook (must be zsh — zparseopts is a zsh builtin) ───────────
 
@@ -71,12 +70,6 @@ typeset -gi _STC_PASSTHROUGH=0
 # ── Phase 1: Capture candidates (do NOT run skim here) ─────────────────
 
 -stc-complete() {
-  # Passthrough: Rust signaled "native" — skip capture, run real completion
-  if (( _STC_PASSTHROUGH )); then
-    _stc__main_complete "$@"
-    return
-  fi
-
   local -Ua _stc_groups
   _stc_compcap=()
 
@@ -166,19 +159,9 @@ skim-tab-complete() {
       skim-tab --complete --compcap --command "$cmd" --query "$_stc_query" --buffer "$_stc_buffer" 2>/dev/tty
     )
 
-    # Phase 2: apply selection or fall back to native
+    # Phase 2: apply selection
     if [[ -n $_stc_response ]]; then
-      local _stc_action=${_stc_response%%$'\n'*}
-      if [[ $_stc_action == native ]]; then
-        # Single directory — bypass skim capture, let native zsh handle it.
-        # The passthrough flag short-circuits -stc-complete so compadd runs
-        # unhooked, giving zsh full control of suffix and IPREFIX splitting.
-        _STC_PASSTHROUGH=1
-        zle .skim-tab-orig-$_stc_orig_widget
-        _STC_PASSTHROUGH=0
-      else
-        zle _skim-tab-apply || ret=$?
-      fi
+      zle _skim-tab-apply || ret=$?
     fi
   fi
 

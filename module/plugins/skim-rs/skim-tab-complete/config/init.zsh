@@ -109,6 +109,7 @@ _skim-tab-apply() {
     local sel_iprefix=${fields[4]:-}
     local sel_isuffix=${fields[5]:-}
     local sel_args=${fields[6]:-}
+    local sel_is_dir=${fields[7]:-}
 
     local -a compadd_args=("${(@ps:\1:)sel_args}")
     [[ -z $compadd_args[1] ]] && compadd_args=()
@@ -119,7 +120,9 @@ _skim-tab-apply() {
   compstate[list]=
   if (( count == 1 )); then
     compstate[insert]='1'
-    [[ $RBUFFER == ' '* ]] || compstate[insert]+=' '
+    if [[ $sel_is_dir != "d" && $RBUFFER != ' '* ]]; then
+      compstate[insert]+=' '
+    fi
   elif (( count > 1 )); then
     compstate[insert]='all'
   fi

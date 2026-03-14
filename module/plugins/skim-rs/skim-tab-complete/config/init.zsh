@@ -109,7 +109,6 @@ _skim-tab-apply() {
     local sel_iprefix=${fields[4]:-}
     local sel_isuffix=${fields[5]:-}
     local sel_args=${fields[6]:-}
-    local sel_is_dir=${fields[7]:-}
 
     local -a compadd_args=("${(@ps:\1:)sel_args}")
     [[ -z $compadd_args[1] ]] && compadd_args=()
@@ -120,11 +119,7 @@ _skim-tab-apply() {
   compstate[list]=
   if (( count == 1 )); then
     compstate[insert]='1'
-    # Directories: no trailing space — next tab descends into the dir.
-    # Rust (skim-tab) stats the path and sends "d" in field 7.
-    if [[ $sel_is_dir != "d" && $RBUFFER != ' '* ]]; then
-      compstate[insert]+=' '
-    fi
+    [[ $RBUFFER == ' '* ]] || compstate[insert]+=' '
   elif (( count > 1 )); then
     compstate[insert]='all'
   fi
@@ -164,9 +159,15 @@ skim-tab-complete() {
       skim-tab --complete --compcap --command "$cmd" --query "$_stc_query" --buffer "$_stc_buffer" 2>/dev/tty
     )
 
-    # Phase 2: apply selection in fresh completion context
+    # Phase 2: apply selection or fall back to native
     if [[ -n $_stc_response ]]; then
-      zle _skim-tab-apply || ret=$?
+      local _stc_action=${_stc_response%%$'\n'*}
+      if [[ $_stc_action == native ]]; then
+        # Single directory — let native zsh completion handle suffix + descent
+        zle .skim-tab-orig-$_stc_orig_widget
+      else
+        zle _skim-tab-apply || ret=$?
+      fi
     fi
   fi
 

@@ -75,14 +75,14 @@ typeset -gi IN_SKIM_TAB=0
 
   COLUMNS=500 _stc__main_complete "$@"
 
-  emulate -L zsh -o extended_glob
-
-  # Save query for skim (PREFIX is only available inside completion context)
-  _stc_query=${PREFIX:-}
-
-  # Suppress default completion display — we'll handle it via skim
-  compstate[list]=
-  compstate[insert]=
+  # Only suppress display when skim-tab is actively capturing (IN_SKIM_TAB=1).
+  # Native fallback (path descent, IN_SKIM_TAB=0) lets zsh display normally.
+  if (( IN_SKIM_TAB )); then
+    emulate -L zsh -o extended_glob
+    _stc_query=${PREFIX:-}
+    compstate[list]=
+    compstate[insert]=
+  fi
 }
 
 # ── Phase 2: Apply selection (runs in fresh completion context) ────────

@@ -140,6 +140,15 @@ _skim-tab-apply() {
 skim-tab-complete() {
   local -i ret=0
 
+  # Path descent: if the word ends with /, bypass skim and use native
+  # zsh completion. Native _path_files splits IPREFIX at / correctly,
+  # which our -Q compadd hook cannot replicate. This gives seamless
+  # tab-tab-tab directory descent after the first skim selection.
+  if [[ $LBUFFER == */ ]]; then
+    zle .skim-tab-orig-$_stc_orig_widget
+    return
+  fi
+
   # Save the command line before completion modifies it
   _stc_buffer=$LBUFFER
 

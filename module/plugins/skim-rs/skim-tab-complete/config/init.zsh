@@ -92,7 +92,7 @@ _skim-tab-apply() {
 
   local -a lines=("${(@f)_stc_response}")
   local action=$lines[1]
-  [[ $action == select ]] || { _stc_response=''; return 1; }
+  [[ $action == select || $action == continue ]] || { _stc_response=''; return 1; }
 
   local -i count=$(( $#lines - 1 ))
   (( count > 0 )) || { _stc_response=''; return 1; }
@@ -119,7 +119,13 @@ _skim-tab-apply() {
   compstate[list]=
   if (( count == 1 )); then
     compstate[insert]='1'
-    [[ $RBUFFER == ' '* ]] || compstate[insert]+=' '
+    # Directory continuation: append / instead of space so next tab descends
+    if [[ $action == continue ]]; then
+      # No trailing space — the widget will re-trigger completion
+      true
+    else
+      [[ $RBUFFER == ' '* ]] || compstate[insert]+=' '
+    fi
   elif (( count > 1 )); then
     compstate[insert]='all'
   fi
@@ -136,34 +142,46 @@ _skim-tab-apply() {
 
 skim-tab-complete() {
   local -i ret=0
+  local -i _stc_continue=1
 
-  # Save the command line before completion modifies it
-  _stc_buffer=$LBUFFER
+  # Loop: on "continue" (directory selected), re-trigger to descend
+  while (( _stc_continue )); do
+    _stc_continue=0
 
-  # Phase 1: capture candidates
-  IN_SKIM_TAB=1
-  {
-    zle .skim-tab-orig-$_stc_orig_widget
-  } always {
-    IN_SKIM_TAB=0
-  }
+    # Save the command line before completion modifies it
+    _stc_buffer=$LBUFFER
 
-  # Between phases: run skim outside completion context
-  if (( $#_stc_compcap )); then
-    local cmd=${_stc_curcontext%%:*}
+    # Phase 1: capture candidates
+    IN_SKIM_TAB=1
+    {
+      zle .skim-tab-orig-$_stc_orig_widget
+    } always {
+      IN_SKIM_TAB=0
+    }
 
-    zle -I  # invalidate ZLE display — release terminal for skim
+    # Between phases: run skim outside completion context
+    if (( $#_stc_compcap )); then
+      local cmd=${_stc_curcontext%%:*}
 
-    _stc_response=$(
-      printf '%s\x03' "${_stc_compcap[@]}" | \
-      skim-tab --complete --compcap --command "$cmd" --query "$_stc_query" --buffer "$_stc_buffer" 2>/dev/tty
-    )
+      zle -I  # invalidate ZLE display — release terminal for skim
 
-    # Phase 2: apply selection in fresh completion context
-    if [[ -n $_stc_response ]]; then
-      zle _skim-tab-apply || ret=$?
+      _stc_response=$(
+        printf '%s\x03' "${_stc_compcap[@]}" | \
+        skim-tab --complete --compcap --command "$cmd" --query "$_stc_query" --buffer "$_stc_buffer" 2>/dev/tty
+      )
+
+      # Phase 2: apply selection in fresh completion context
+      if [[ -n $_stc_response ]]; then
+        local _stc_action=${_stc_response%%$'\n'*}
+        zle _skim-tab-apply || ret=$?
+
+        # Directory continuation: re-trigger to descend into selected dir
+        if [[ $_stc_action == continue ]]; then
+          _stc_continue=1
+        fi
+      fi
     fi
-  fi
+  done
 
   zle .redisplay
   return $ret

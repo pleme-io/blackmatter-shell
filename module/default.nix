@@ -71,6 +71,15 @@ with lib; let
     # Add user nix profile (highest precedence after HM)
     export PATH="$HOME/.nix-profile/bin:$PATH"
 
+    # ===== SSH TERMINAL FIX =====
+    # Force TERM to xterm-256color in SSH sessions. Ghostty's xterm-ghostty
+    # terminfo uses extended escape sequences that cause garbled rendering
+    # over SSH pty (syntax highlighting, prompt redraw, clear all break).
+    # The local Ghostty terminal handles these natively — SSH doesn't.
+    if [[ -n "$SSH_CONNECTION" && "$TERM" == "xterm-ghostty" ]]; then
+      export TERM=xterm-256color
+    fi
+
     # ===== SHELL CONFIGURATION =====
     # Set shell config paths that must survive direnv's pure environments
     # These are set early so direnv can preserve them

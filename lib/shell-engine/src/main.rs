@@ -127,3 +127,89 @@ fn main() {
         writeln!(out, "add-zsh-hook precmd __blackmatter_deferred").unwrap();
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn manifest_deserializes_empty() {
+        let m: Manifest = serde_json::from_str("{}").unwrap();
+        assert!(m.pre_sources.is_empty());
+        assert!(m.plugins_immediate.is_empty());
+        assert!(m.plugins_deferred.is_empty());
+        assert!(m.post_sources.is_empty());
+        assert!(m.scan_dirs.is_empty());
+        assert!(m.clean_paths.is_empty());
+    }
+
+    #[test]
+    fn manifest_deserializes_partial() {
+        let json = r#"{"pre_sources":["~/.a.zsh"],"plugins_deferred":["~/.b.zsh"]}"#;
+        let m: Manifest = serde_json::from_str(json).unwrap();
+        assert_eq!(m.pre_sources, vec!["~/.a.zsh"]);
+        assert_eq!(m.plugins_deferred, vec!["~/.b.zsh"]);
+        assert!(m.plugins_immediate.is_empty());
+    }
+
+    #[test]
+    fn manifest_deserializes_full() {
+        let json = r#"{
+            "pre_sources": ["/a"],
+            "plugins_immediate": ["/b"],
+            "plugins_deferred": ["/c"],
+            "post_sources": ["/d"],
+            "scan_dirs": ["/e"],
+            "clean_paths": ["/f"]
+        }"#;
+        let m: Manifest = serde_json::from_str(json).unwrap();
+        assert_eq!(m.pre_sources, vec!["/a"]);
+        assert_eq!(m.plugins_immediate, vec!["/b"]);
+        assert_eq!(m.plugins_deferred, vec!["/c"]);
+        assert_eq!(m.post_sources, vec!["/d"]);
+        assert_eq!(m.scan_dirs, vec!["/e"]);
+        assert_eq!(m.clean_paths, vec!["/f"]);
+    }
+
+    #[test]
+    fn expand_tilde_absolute_path() {
+        assert_eq!(expand_tilde("/absolute/path"), PathBuf::from("/absolute/path"));
+    }
+
+    #[test]
+    fn expand_tilde_with_home() {
+        env::set_var("HOME", "/home/testuser");
+        assert_eq!(expand_tilde("~/foo/bar"), PathBuf::from("/home/testuser/foo/bar"));
+    }
+
+    #[test]
+    fn expand_tilde_relative_path() {
+        assert_eq!(expand_tilde("relative/path"), PathBuf::from("relative/path"));
+    }
+
+    #[test]
+    fn source_if_exists_when_file_exists() {
+        let dir = env::temp_dir().join("bm_shell_test");
+        fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("exists.zsh");
+        fs::write(&path, "").unwrap();
+        let path_str = path.to_string_lossy().to_string();
+
+        let mut out = Vec::new();
+        let wrote = source_if_exists(&mut out, &path_str);
+        assert!(wrote);
+        let output = String::from_utf8(out).unwrap();
+        assert!(output.starts_with("source "));
+        assert!(output.contains(&path_str));
+
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn source_if_exists_when_missing() {
+        let mut out = Vec::new();
+        let wrote = source_if_exists(&mut out, "/nonexistent/path/xyz.zsh");
+        assert!(!wrote);
+        assert!(out.is_empty());
+    }
+}

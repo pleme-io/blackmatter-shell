@@ -4,6 +4,7 @@
 # Format - Minimal prompt structure
 format = """
 $nix_shell\
+$env_var_WORKSPACE\
 $hostname$directory\
 $git_branch\
 $git_status\
@@ -193,8 +194,11 @@ disabled = true
 [conda]
 disabled = true
 
-[env_var]
-disabled = true
+[env_var.WORKSPACE]
+disabled = false
+format = '[\\[$env_value\\]]($style) '
+style = 'dimmed italic'
+variable = 'WORKSPACE'
 
 [shell]
 disabled = true

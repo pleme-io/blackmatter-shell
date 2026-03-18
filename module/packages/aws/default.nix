@@ -1,6 +1,4 @@
 pkgs: with pkgs; [
+  awscli2
   ssm-session-manager-plugin
-  cloud-nuke
-  nodePackages_latest.cdktf-cli
-  # awscli2 # Disabled: slow test suite hangs builds
 ]

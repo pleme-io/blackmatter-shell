@@ -62,7 +62,7 @@ in {
           traceroute
           llama-cpp
           gnumake
-          # awscli2 # Disabled: slow test suite hangs builds
+          awscli2
           bundix
           arion
           sops

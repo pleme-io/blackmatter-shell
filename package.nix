@@ -190,6 +190,8 @@
   zshrc = pkgs.writeText "blzsh-zshrc" ''
     [[ -n "$ZPROF" ]] && zmodload zsh/zprof
     source ${./module/groups/common/settings.zsh}
+    # Add zsh-completions to fpath BEFORE compinit (300+ extra _* functions)
+    fpath=(${pkgs.zsh-completions}/share/zsh/site-functions $fpath)
     source ${./module/groups/completion/init.zsh}
     # ===== VIM MODE =====
     # Must be set BEFORE plugins so plugin keybindings (atuin ctrl-r, etc.)

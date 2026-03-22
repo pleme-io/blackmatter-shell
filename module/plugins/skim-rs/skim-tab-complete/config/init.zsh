@@ -47,8 +47,11 @@ typeset -gi IN_SKIM_TAB=0
   if (( $#dscrs == 1 )); then
     __dscr=( "${(@P)${(v)dscrs}}" )
   fi
-  builtin compadd -A __hits -D __dscr "$@"
+  builtin compadd -U -A __hits -D __dscr "$@"
   local ret=$?
+  if (( ${+STC_DEBUG} )); then
+    printf 'hook: PREFIX=%q IPREFIX=%q hits=%d\n' "$PREFIX" "$IPREFIX" "$#__hits" >> /tmp/stc-debug.log
+  fi
   (( $#__hits )) || return $ret
 
   expl=$expl[2]
@@ -94,7 +97,12 @@ typeset -gi IN_SKIM_TAB=0
   # Native fallback (IN_SKIM_TAB=0) lets zsh handle display.
   if (( IN_SKIM_TAB )); then
     emulate -L zsh -o extended_glob
-    _stc_query=${PREFIX:-}
+    # Use the actual word the user typed (last word in LBUFFER), not zsh's
+    # internal PREFIX which may be empty after IPREFIX consumption.
+    _stc_query=${${LBUFFER##* }:-$PREFIX}
+    if (( ${+STC_DEBUG} )); then
+      printf 'capture: PREFIX=%q LBUFFER_word=%q query=%q compcap=%d\n' "$PREFIX" "${LBUFFER##* }" "$_stc_query" "$#_stc_compcap" >> /tmp/stc-debug.log
+    fi
     compstate[list]=
     compstate[insert]=
   fi
@@ -231,11 +239,12 @@ enable-skim-tab() {
   function _main_complete() { -stc-complete "$@" }
 
   functions[_stc__approximate]=$functions[_approximate]
-  function _approximate() {
-    (( ! IN_SKIM_TAB )) || unfunction compadd
-    _stc__approximate
-    (( ! IN_SKIM_TAB )) || functions[compadd]=$functions[-stc-compadd]
-  }
+  # Keep compadd hook active during _approximate so fuzzy/typo-tolerant
+  # matches are captured into _stc_compcap. The -U flag in the hook's
+  # builtin compadd call already prevents double-counting, and skim-tab
+  # deduplicates in Rust. Without this, partial completions fail because
+  # _approximate matches are the only hits for inexact prefixes.
+  function _approximate() { _stc__approximate; }
 }
 
 disable-skim-tab() {

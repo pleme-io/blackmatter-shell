@@ -208,9 +208,9 @@
     export _BLZSH_SKIM_KEYS_LOADED=1
     source ${./module/plugins/skim-rs/skim/config/init.zsh}            # skim opts + Ctrl+F widget
     source ${./module/plugins/skim-rs/skim-tab-complete/config/init.zsh}  # skim-tab-complete (35, native skim)
-    source ${./module/plugins/pleme-io/bm-guard/config/init.zsh}       # bm-guard (36, preexec safety net)
     source ${./module/plugins/ajeetdsouza/zoxide/config/init.zsh}      # zoxide (40)
     source ${./module/plugins/atuinsh/atuin/config/init.zsh}           # atuin (50, replaces autosuggestions)
+    source ${./module/plugins/pleme-io/bm-guard/config/init.zsh}       # bm-guard (55, AFTER atuin so it wraps on top)
     source ${./module/plugins/direnv/direnv/config/init.zsh}           # direnv (90)
     # Deferred plugins (loaded after first prompt paint)
     __blackmatter_deferred() {

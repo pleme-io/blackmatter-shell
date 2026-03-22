@@ -209,10 +209,9 @@ skim-tab-complete() {
     fi
     zle .redisplay
   else
-    # Path C — no skim candidates: fall through to native zsh completion
-    # (handles cases where compadd hook missed candidates, e.g., direct widgets)
-    IN_SKIM_TAB=0
-    zle .skim-tab-orig-$_stc_orig_widget
+    # Path C — no candidates captured. Completers already ran via Path B;
+    # re-running would double latency for no gain. Just redisplay.
+    zle .redisplay
   fi
 
   return $ret

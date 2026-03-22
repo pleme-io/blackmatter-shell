@@ -22,12 +22,11 @@ zstyle ':completion::complete:*' use-cache on
 zstyle ':completion::complete:*' cache-path "$_zsh_cache"
 
 # ===== COMPLETERS =====
-# Order matters: try exact match first, then expand, then approximate.
-# _complete: standard prefix/substring matching
-# _expand: expand aliases, globs, variables
+# _complete: standard prefix/substring matching (case-insensitive via matcher-list)
 # _approximate: typo-tolerant matching (allows errors based on word length)
-# _correct: correct the word before the cursor
-zstyle ':completion:*' completer _complete _expand _approximate _correct
+# Note: _expand is excluded — it bypasses compadd (breaks skim-tab capture).
+# Note: _correct is excluded — it's a strict subset of _approximate.
+zstyle ':completion:*' completer _complete _approximate
 
 # ===== COMPLETION MATCHING =====
 # Case-insensitive (all), partial-word, and substring completion

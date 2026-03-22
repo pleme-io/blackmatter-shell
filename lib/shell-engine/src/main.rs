@@ -178,9 +178,10 @@ mod tests {
 
     #[test]
     fn expand_tilde_with_home() {
-        // SAFETY: single-threaded test context, no concurrent env reads
-        unsafe { env::set_var("HOME", "/home/testuser") };
-        assert_eq!(expand_tilde("~/foo/bar"), PathBuf::from("/home/testuser/foo/bar"));
+        // Use the actual HOME env var (don't mutate — not thread-safe)
+        let home = env::var("HOME").expect("HOME must be set in test env");
+        let expected = PathBuf::from(&home).join("foo/bar");
+        assert_eq!(expand_tilde("~/foo/bar"), expected);
     }
 
     #[test]

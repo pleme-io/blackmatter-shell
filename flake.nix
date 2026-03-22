@@ -15,6 +15,10 @@
       url = "github:pleme-io/blx";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    bm-guard = {
+      url = "github:pleme-io/bm-guard";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     devenv = {
       url = "github:cachix/devenv";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -27,6 +31,7 @@
     blackmatter-nvim,
     skim-tab,
     blx,
+    bm-guard,
     devenv,
   }: let
     systems = ["x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin"];
@@ -34,11 +39,11 @@
   in {
     packages = forAllSystems (pkgs: {
       default = import ./package.nix {
-        inherit pkgs blackmatter-nvim skim-tab blx;
+        inherit pkgs blackmatter-nvim skim-tab blx bm-guard;
         lib = nixpkgs.lib;
       };
       blzsh = import ./package.nix {
-        inherit pkgs blackmatter-nvim skim-tab blx;
+        inherit pkgs blackmatter-nvim skim-tab blx bm-guard;
         lib = nixpkgs.lib;
       };
     });

@@ -4,9 +4,11 @@
   blackmatter-nvim,
   skim-tab,
   blx,
+  bm-guard,
 }: let
   blnvim = blackmatter-nvim.packages.${pkgs.system}.blnvim;
   skimTabBin = skim-tab.packages.${pkgs.system}.default;
+  bmGuardBin = bm-guard.packages.${pkgs.system}.default;
   blxBin = pkgs.symlinkJoin {
     name = "blx-with-multicall";
     paths = [ blx.packages.${pkgs.system}.default ];
@@ -106,6 +108,7 @@
       zoxide
       skim
       skimTabBin
+      bmGuardBin
       atuin
       delta
       dust
@@ -205,6 +208,7 @@
     export _BLZSH_SKIM_KEYS_LOADED=1
     source ${./module/plugins/skim-rs/skim/config/init.zsh}            # skim opts + Ctrl+F widget
     source ${./module/plugins/skim-rs/skim-tab-complete/config/init.zsh}  # skim-tab-complete (35, native skim)
+    source ${./module/plugins/pleme-io/bm-guard/config/init.zsh}       # bm-guard (36, preexec safety net)
     source ${./module/plugins/ajeetdsouza/zoxide/config/init.zsh}      # zoxide (40)
     source ${./module/plugins/atuinsh/atuin/config/init.zsh}           # atuin (50, replaces autosuggestions)
     source ${./module/plugins/direnv/direnv/config/init.zsh}           # direnv (90)

@@ -97,9 +97,15 @@ typeset -gi IN_SKIM_TAB=0
   # Native fallback (IN_SKIM_TAB=0) lets zsh handle display.
   if (( IN_SKIM_TAB )); then
     emulate -L zsh -o extended_glob
-    # Use the actual word the user typed (last word in LBUFFER), not zsh's
-    # internal PREFIX which may be empty after IPREFIX consumption.
-    _stc_query=${${LBUFFER##* }:-$PREFIX}
+    # Build query from the user's actual typed text:
+    # 1. Try PREFIX (zsh's word-under-cursor, best when available)
+    # 2. Fall back to LBUFFER's last word (handles IPREFIX consumption)
+    # 3. Empty string if nothing (shows all candidates in skim)
+    if [[ -n $PREFIX ]]; then
+      _stc_query=$PREFIX
+    else
+      _stc_query=${LBUFFER##* }
+    fi
     if (( ${+STC_DEBUG} )); then
       printf 'capture: PREFIX=%q LBUFFER_word=%q query=%q compcap=%d\n' "$PREFIX" "${LBUFFER##* }" "$_stc_query" "$#_stc_compcap" >> /tmp/stc-debug.log
     fi
@@ -199,10 +205,14 @@ skim-tab-complete() {
     if [[ -n $_stc_response ]]; then
       zle _skim-tab-apply || ret=$?
     fi
+    zle .redisplay
+  else
+    # Path C — no skim candidates: fall through to native zsh completion
+    # (handles cases where compadd hook missed candidates, e.g., direct widgets)
+    IN_SKIM_TAB=0
+    zle .skim-tab-orig-$_stc_orig_widget
   fi
 
-  # Path C — no candidates: redisplay
-  zle .redisplay
   return $ret
 }
 

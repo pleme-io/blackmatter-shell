@@ -21,6 +21,14 @@ fi
 zstyle ':completion::complete:*' use-cache on
 zstyle ':completion::complete:*' cache-path "$_zsh_cache"
 
+# ===== COMPLETERS =====
+# Order matters: try exact match first, then expand, then approximate.
+# _complete: standard prefix/substring matching
+# _expand: expand aliases, globs, variables
+# _approximate: typo-tolerant matching (allows errors based on word length)
+# _correct: correct the word before the cursor
+zstyle ':completion:*' completer _complete _expand _approximate _correct
+
 # ===== COMPLETION MATCHING =====
 # Case-insensitive (all), partial-word, and substring completion
 zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'

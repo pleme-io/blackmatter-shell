@@ -97,15 +97,17 @@ typeset -gi IN_SKIM_TAB=0
   # Native fallback (IN_SKIM_TAB=0) lets zsh handle display.
   if (( IN_SKIM_TAB )); then
     emulate -L zsh -o extended_glob
-    # Build query from the user's actual typed text:
-    # 1. Try PREFIX (zsh's word-under-cursor, best when available)
-    # 2. Fall back to LBUFFER's last word (handles IPREFIX consumption)
-    # 3. Empty string if nothing (shows all candidates in skim)
+    # Build query from the user's actual typed text.
+    # Prepend ^ for skim prefix matching — "a" becomes "^a" so only
+    # candidates STARTING with "a" appear (not all containing "a").
+    # Users can delete the ^ in the skim picker to switch to fuzzy mode.
+    local _raw_query
     if [[ -n $PREFIX ]]; then
-      _stc_query=$PREFIX
+      _raw_query=$PREFIX
     else
-      _stc_query=${LBUFFER##* }
+      _raw_query=${LBUFFER##* }
     fi
+    _stc_query="^${_raw_query}"
     if (( ${+STC_DEBUG} )); then
       printf 'capture: PREFIX=%q LBUFFER_word=%q query=%q compcap=%d\n' "$PREFIX" "${LBUFFER##* }" "$_stc_query" "$#_stc_compcap" >> /tmp/stc-debug.log
     fi

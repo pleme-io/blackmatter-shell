@@ -178,7 +178,8 @@ mod tests {
 
     #[test]
     fn expand_tilde_with_home() {
-        env::set_var("HOME", "/home/testuser");
+        // SAFETY: single-threaded test context, no concurrent env reads
+        unsafe { env::set_var("HOME", "/home/testuser") };
         assert_eq!(expand_tilde("~/foo/bar"), PathBuf::from("/home/testuser/foo/bar"));
     }
 

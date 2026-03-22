@@ -58,11 +58,11 @@
         "substrate": "substrate_2"
       },
       "locked": {
-        "lastModified": 1774209312,
-        "narHash": "sha256-3gDZ9m7nFKE0WOj0OnkcUKWSWIK7EnA0Bu97UB5XZ7E=",
+        "lastModified": 1774209762,
+        "narHash": "sha256-7HWPmRGFHm0WmyGzA9wD3h11f+pFMW/tfp7zclwolfA=",
         "owner": "pleme-io",
         "repo": "bm-guard",
-        "rev": "f848088bb5047d883c793b61f3011b04fb6171dd",
+        "rev": "5f2267ee8fb9840218489b1b964efb63d491de09",
         "type": "github"
       },
       "original": {

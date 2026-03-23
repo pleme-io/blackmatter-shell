@@ -157,8 +157,7 @@
       pueue
 
       # ── Shell infrastructure ──
-      direnv
-      nix-direnv
+      # direnv + nix-direnv managed by blackmatter-direnv
       starship
       zsh
       blnvim

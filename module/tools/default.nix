@@ -16,7 +16,7 @@ in {
   config = mkMerge [
     (mkIf cfg.enable {
       programs.jq.enable = true;
-      programs.direnv.enable = true;
+      # direnv managed by blackmatter-direnv module
     })
   ];
 }

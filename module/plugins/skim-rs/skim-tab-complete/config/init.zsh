@@ -118,7 +118,7 @@ typeset -gi IN_SKIM_TAB=0
 
 # ── Phase 2: Apply skim selection ─────────────────────────────────────
 # Runs in a fresh completion context. Parses the skim-tab response
-# (7 fields per line: word, prefix, suffix, iprefix, isuffix, args, is_dir)
+# (8 fields per line: word, prefix, suffix, iprefix, isuffix, args, dir_flag, exec_flag)
 # and inserts the selection via builtin compadd.
 
 _skim-tab-apply() {

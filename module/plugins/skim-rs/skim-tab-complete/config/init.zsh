@@ -158,7 +158,9 @@ _skim-tab-apply() {
     compstate[insert]='1'
     # Directories: no trailing space — next tab triggers path descent.
     # Rust (skim-tab) detects dirs via stat, appends /, sends "d" in field 7.
-    if (( ! is_dir_selection )) && [[ $RBUFFER != ' '* ]]; then
+    # Don't add trailing space for directories (next tab descends) or
+    # midword completions (SUFFIX text follows the cursor).
+    if (( ! is_dir_selection )) && [[ -z $sel_suffix ]] && [[ $RBUFFER != ' '* ]]; then
       compstate[insert]+=' '
     fi
   elif (( count > 1 )); then

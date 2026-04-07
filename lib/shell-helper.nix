@@ -11,14 +11,9 @@ with lib; let
     configHome = ". ~/.config/shell/plugins";
   };
 
-  # Shell engine — Rust binary with serde_json for proper JSON parsing.
-  # Reads the shell manifest (JSON) and outputs zsh source commands.
-  shellEngine = pkgs.rustPlatform.buildRustPackage {
-    pname = "bm-shell-engine";
-    version = "0.1.0";
-    src = ./shell-engine;
-    cargoLock.lockFile = ./shell-engine/Cargo.lock;
-  };
+  # Shell engine — uses the overlay package built via substrate's
+  # rust-tool-release-flake (crate2nix, no broken Cargo.lock symlinks).
+  shellEngine = pkgs.bm-shell-engine;
 
   # Convert Nix value to shell-compatible format (for env vars, arrays, etc.)
   toShellValue = lib.fix (self: val:

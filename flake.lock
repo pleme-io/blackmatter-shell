@@ -8,11 +8,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1773867314,
-        "narHash": "sha256-HdttjupbwcnDj1yK2ngRISnYD29hKFB1ell9GM20SuM=",
+        "lastModified": 1776392339,
+        "narHash": "sha256-TjiBaKvJn0Q48yLEcVST0hQsCi64by0sf2YE0T7ufJo=",
         "owner": "pleme-io",
         "repo": "blackmatter-nvim",
-        "rev": "b2f159f7c5adf37d54f06f5de04ba33a8a8dd551",
+        "rev": "cfbb3435e0ea8db08d3d7df841f6709dee4af2ee",
         "type": "github"
       },
       "original": {

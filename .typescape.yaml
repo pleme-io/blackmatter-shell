@@ -1,0 +1,28 @@
+schema_version: 1
+manifest:
+  name: blackmatter-shell
+  kind: BlackmatterComponent
+  archetype: blackmatter-component-custom-package-hm
+  description: Curated zsh distribution (blzsh) with 7 plugins and 35 bundled tools.
+  custom_flake: true
+  custom_flake_reason: |
+    Package + overlay + HM module composed with `skim-tab`, `blx`, `bm-guard`,
+    and `blackmatter-nvim` as direct flake inputs woven into the package
+    derivation. The flake is canonical and stable — not worth migrating for
+    aesthetic uniformity.
+dimensions:
+  vocabulary: [zsh, blzsh, skim-tab, blx, bm-guard, starship]
+  domains: [Nix, Zsh]
+  stack: [HomeManager]
+  modules:
+    home_manager: module/
+  render:
+    produces:
+      - "pkgs.blzsh (standalone shell binary)"
+      - "~/.zshrc, ~/.zshenv, ~/.config/zsh/*"
+  compliance:
+    satisfies: []
+    participates: []
+  dag:
+    inputs: [nixpkgs, blackmatter-nvim, skim-tab, blx, bm-guard]
+  attestation: { merkle_root: null, signed_by: null, producer: custom-flake }

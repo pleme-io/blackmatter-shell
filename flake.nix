@@ -50,15 +50,17 @@
 
     homeManagerModules.default = import ./module;
 
-    overlays.default = final: prev: {
-      blzsh = self.packages.${final.system}.blzsh;
-      skim-tab = skim-tab.packages.${final.system}.default;
+    overlays.default = final: prev: let
+      system = final.stdenv.hostPlatform.system;
+    in {
+      blzsh = self.packages.${system}.blzsh;
+      skim-tab = skim-tab.packages.${system}.default;
     };
 
     devShells = forAllSystems (pkgs: {
       default = pkgs.mkShell {
         packages = [
-          self.packages.${pkgs.system}.blzsh
+          self.packages.${pkgs.stdenv.hostPlatform.system}.blzsh
           pkgs.nixd
           pkgs.shellcheck
           pkgs.shfmt

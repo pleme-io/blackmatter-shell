@@ -6,12 +6,13 @@
   blx,
   bm-guard,
 }: let
-  blnvim = blackmatter-nvim.packages.${pkgs.system}.blnvim;
-  skimTabBin = skim-tab.packages.${pkgs.system}.default;
-  bmGuardBin = bm-guard.packages.${pkgs.system}.default;
+  system = pkgs.stdenv.hostPlatform.system;
+  blnvim = blackmatter-nvim.packages.${system}.blnvim;
+  skimTabBin = skim-tab.packages.${system}.default;
+  bmGuardBin = bm-guard.packages.${system}.default;
   blxBin = pkgs.symlinkJoin {
     name = "blx-with-multicall";
-    paths = [ blx.packages.${pkgs.system}.default ];
+    paths = [ blx.packages.${system}.default ];
     postBuild = ''
       cd $out/bin
       for name in blx-ls blx-backup blx-weather blx-json \

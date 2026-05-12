@@ -19,7 +19,19 @@ continuation_prompt = "[❄](bold #5E81AC) "
 # Scan timeout - performance
 scan_timeout = 10
 command_timeout = 100
-add_newline = true
+# Empirically verified via mado MCP introspection (2026-05-12): with
+# add_newline = true starship inserts a blank row before every prompt,
+# producing rows like:
+#   row N:   <prompt>
+#   row N+1: <blank>
+#   row N+2: <prompt>
+#   row N+3: <blank>  ← cursor lands here after Enter, looking "wrong"
+# The blank rows make the cursor appear vertically detached from the
+# last prompt's baseline — exactly the "cursor in wrong place" the
+# operator saw in mado screenshots. The cursor was always in the
+# right cell coordinates; the layout was generating empty rows
+# between every prompt.
+add_newline = false
 
 # ===== CHARACTER (SNOWFLAKE) =====
 [character]

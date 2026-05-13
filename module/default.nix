@@ -341,6 +341,36 @@ in {
       rm -f "$HOME/.zsh/zcompdump" "$HOME/.zsh/zcompdump.zwc"
     '';
 
+    # ── Activation: refresh launchd's session env on every rebuild ──────────
+    #
+    # Home-manager updates `.zshenv` and the on-disk symlink target for
+    # `~/.config/shell/plugins/starship/starship/starship.toml`. But
+    # GUI processes (mado, ghostty, IDE launchers, anything started by
+    # the Dock / Spotlight / Finder / a not-yet-relaunched shell) inherit
+    # env from the user's **launchd session**, which is frozen at login
+    # time. Without this hook, every rebuild that changes a config-path
+    # variable leaves stale GUI processes pointing at the old store path
+    # forever — diagnosed via mado MCP snapshot_grid on 2026-05-12 when
+    # STARSHIP_CONFIG=/nix/store/0yr8p4h… persisted through three
+    # full home-manager switches.
+    #
+    # `launchctl setenv` on macOS updates the per-user launchd session's
+    # env table. Every GUI process launched AFTER this point inherits the
+    # new value. Already-running processes still need a relaunch — but
+    # this is unavoidable without process-level env injection.
+    #
+    # Path stays stable across rebuilds (it's a HOME-relative path that
+    # resolves through the home-manager symlink), so the launchd env
+    # entry never needs to change once seeded.
+    home.activation.refreshLaunchdConfigPaths =
+      lib.hm.dag.entryAfter ["writeBoundary"] ''
+        if [[ "$(uname)" == "Darwin" ]]; then
+          /bin/launchctl setenv STARSHIP_CONFIG \
+            "$HOME/.config/shell/plugins/starship/starship/starship.toml" \
+            2>/dev/null || true
+        fi
+      '';
+
     # Generate .zshenv (loaded FIRST, before .zshrc)
     # Critical for direnv and all commands to have correct PATH
     home.file.".zshenv".text = zshenvContent;

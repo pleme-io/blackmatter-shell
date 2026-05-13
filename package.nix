@@ -196,7 +196,16 @@
     ++ lib.optionals pkgs.stdenv.isLinux [pkgs.gitui]);
 
   # .zshenv: load nix, load hm session vars, set STARSHIP_CONFIG, create writable dirs
+  #
+  # STARSHIP_CONFIG is exported ABOVE the re-source guard so child shells
+  # inheriting `__BLACKMATTER_ZSHENV_SOURCED=1` from a long-running parent
+  # process (mado, ghostty, tmux, IDE) still pick up the rebuilt store
+  # path on each shell start. Without this, a parent launched before a
+  # blackmatter-shell rebuild keeps its stale STARSHIP_CONFIG forever
+  # and every child shell sees the OLD starship.toml content.
+  # Empirically diagnosed via mado MCP snapshot_grid on 2026-05-12.
   zshenv = pkgs.writeText "blzsh-zshenv" ''
+    export STARSHIP_CONFIG="${./module/plugins/starship/starship/config/starship.toml}"
     if [ -n "$__BLACKMATTER_ZSHENV_SOURCED" ]; then return; fi
     export __BLACKMATTER_ZSHENV_SOURCED=1
     if [ -e '/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh' ]; then
@@ -211,7 +220,9 @@
     elif [[ -f "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh" ]]; then
       source "$HOME/.nix-profile/etc/profile.d/hm-session-vars.sh"
     fi
-    export STARSHIP_CONFIG="${./module/plugins/starship/starship/config/starship.toml}"
+    # NOTE: STARSHIP_CONFIG already exported above the guard so the
+    # rebuilt store path reaches every nested shell, even ones whose
+    # parent process pre-dates the rebuild. Don't re-export here.
     export LS_COLORS="${nordLsColors}"
     mkdir -p "''${XDG_STATE_HOME:-$HOME/.local/state}/zsh"
     mkdir -p "''${XDG_CACHE_HOME:-$HOME/.cache}/zsh"

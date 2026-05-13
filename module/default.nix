@@ -31,6 +31,17 @@ with lib; let
     # DO NOT EDIT - Changes will be overwritten
     # This file is loaded FIRST, before .zshrc, for all shells
 
+    # ===== ALWAYS-FRESH CONFIG PATHS =====
+    # Variables that point at home-manager-installed config files MUST
+    # be re-exported on every shell start, even when the rebuild guard
+    # short-circuits the rest of this script. Without this block, any
+    # long-running parent process (mado, ghostty, tmux, IDE) launched
+    # before a rebuild keeps its OLD config-file paths forever — child
+    # shells inherit the stale value, hit the guard below, and never
+    # see new home-manager symlinks. Empirically diagnosed via mado
+    # MCP snapshot_grid on 2026-05-12.
+    export STARSHIP_CONFIG="$HOME/.config/shell/plugins/starship/starship/starship.toml"
+
     # Skip if already sourced
     if [ -n "$__BLACKMATTER_ZSHENV_SOURCED" ]; then return; fi
     export __BLACKMATTER_ZSHENV_SOURCED=1

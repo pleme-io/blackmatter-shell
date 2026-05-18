@@ -5,6 +5,7 @@
 format = """
 $nix_shell\
 $env_var_WORKSPACE\
+$custom\
 $hostname$directory\
 $git_branch\
 $git_status\
@@ -139,6 +140,27 @@ disabled = false
 format = '[$symbol]($style) '
 symbol = "❄"
 style = "bold #88C0D0"
+
+# ===== TEAR DAEMON INDICATOR =====
+# Show a small "tear" badge in the prompt when the pleme-io tear
+# multiplexer daemon is reachable. Exit code 0 = reachable; the
+# `when` predicate accepts that as truthy, so the badge appears only
+# on hosts running `programs.tear.daemon.enable = true` (or anyone
+# who started `tear daemon` manually).
+#
+# Performance: `tear status --quiet` performs a single UDS connect +
+# one ListSessions RPC, typically <10ms locally. The starship
+# `command_timeout = 100` above is the upper bound; if the daemon
+# is unreachable, the connect fails immediately and the badge
+# silently disappears.
+[custom.tear]
+description = "Pleme-io tear multiplexer daemon — visible when reachable"
+command = "tear status --quiet 2>/dev/null && echo ok || true"
+when = "tear status --quiet 2>/dev/null"
+format = "[⛗]($style) "
+style = "bold #5E81AC" # Nord frost-3 (matches existing snowflake palette)
+shell = ["sh", "-c"]
+ignore_timeout = true
 
 [docker_context]
 disabled = true

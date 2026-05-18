@@ -155,11 +155,14 @@ style = "bold #88C0D0"
 # silently disappears.
 [custom.tear]
 description = "Pleme-io tear multiplexer daemon — visible when reachable"
+# starship invokes the configured shell as `sh -c "<command>"`
+# automatically. Don't pre-pend `-c` in `shell = […]` — that yields
+# `sh -c -c <command>` and sh errors out with
+# `sh: -c: option requires an argument`. Default shell (sh) is fine.
 command = "tear status --quiet 2>/dev/null && echo ok || true"
 when = "tear status --quiet 2>/dev/null"
 format = "[⛗]($style) "
 style = "bold #5E81AC" # Nord frost-3 (matches existing snowflake palette)
-shell = ["sh", "-c"]
 ignore_timeout = true
 
 [docker_context]

@@ -19,8 +19,21 @@ right_format = ""
 continuation_prompt = "[❄](bold #5E81AC) "
 
 # Scan timeout - performance
-scan_timeout = 10
-command_timeout = 100
+#
+# 10 ms was too aggressive on dev machines — starship warned
+# `(starship::context): Scanning current directory timed out`
+# on every prompt and the warnings ate the screen above the
+# prompt. 100 ms is the value Starship's own docs recommend
+# for "fast machine with potentially slow disk" and matches
+# the default for `command_timeout`-style operations. Per-
+# module scans still cap themselves below this number — this
+# is only the hard ceiling.
+scan_timeout = 100
+# Command timeout (custom commands like the tear segments).
+# 500 ms keeps starship-blocking commands bounded, but lets
+# UDS-RPC custom blocks (`tear status` / future tear segments)
+# breathe on a busy daemon.
+command_timeout = 500
 # Empirically verified via mado MCP introspection (2026-05-12): with
 # add_newline = true starship inserts a blank row before every prompt,
 # producing rows like:
@@ -142,29 +155,15 @@ format = '[$symbol]($style) '
 symbol = "❄"
 style = "bold #88C0D0"
 
-# ===== TEAR DAEMON INDICATOR =====
-# Show a small "tear" badge in the prompt when the pleme-io tear
-# multiplexer daemon is reachable. Exit code 0 = reachable; the
-# `when` predicate accepts that as truthy, so the badge appears only
-# on hosts running `programs.tear.daemon.enable = true` (or anyone
-# who started `tear daemon` manually).
-#
-# Performance: `tear status --quiet` performs a single UDS connect +
-# one ListSessions RPC, typically <10ms locally. The starship
-# `command_timeout = 100` above is the upper bound; if the daemon
-# is unreachable, the connect fails immediately and the badge
-# silently disappears.
-[custom.tear]
-description = "Pleme-io tear multiplexer daemon — visible when reachable"
-# starship invokes the configured shell as `sh -c "<command>"`
-# automatically. Don't pre-pend `-c` in `shell = […]` — that yields
-# `sh -c -c <command>` and sh errors out with
-# `sh: -c: option requires an argument`. Default shell (sh) is fine.
-command = "tear status --quiet 2>/dev/null && echo ok || true"
-when = "tear status --quiet 2>/dev/null"
-format = "[⛗]($style) "
-style = "bold #5E81AC" # Nord frost-3 (matches existing snowflake palette)
-ignore_timeout = true
+# Daemon-reachable [custom.tear] removed — when you're inside a
+# tear pane (every default mado launch since the auto-session
+# change), the in-session badges (~ session-name · pane-prefix)
+# from $TEAR_SESSION_NAME / $TEAR_PANE_ID already tell you the
+# daemon is up and which session you're in. The external
+# daemon-reachable indicator was redundant + cost a UDS-RPC per
+# prompt render. Use `tear status` or the tear MCP `daemon_status`
+# tool when you want to interrogate the daemon from outside a
+# session.
 
 [docker_context]
 disabled = true

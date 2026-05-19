@@ -35,6 +35,14 @@ setopt NO_CASE_GLOB               # Case insensitive globbing
 setopt NUMERIC_GLOB_SORT          # Sort numeric filenames numerically
 setopt NO_NOMATCH                 # Pass unmatched globs to command (fixes nix flake .#syntax)
 
+# ===== PROMPT =====
+# Disable zsh's "partial line preserve" indicator. By default zsh
+# prints a `%` followed by spaces + CR before the first prompt
+# when the previous program's stdout didn't end with a newline.
+# Operator-visible as a leftover `%` at top-left of every new
+# tear-spawned shell — cosmetic but confusing.
+unsetopt PROMPT_SP                # No leading `%` indicator before first prompt
+
 # ===== INPUT/OUTPUT =====
 setopt INTERACTIVE_COMMENTS       # Allow comments even in interactive shells
 setopt RC_QUOTES                  # Allow 'Henry''s Garage' instead of 'Henry'\''s Garage'

@@ -5,6 +5,7 @@
 format = """
 $nix_shell\
 $env_var_WORKSPACE\
+$env_var_TEAR_SESSION_NAME\
 $custom\
 $hostname$directory\
 $git_branch\
@@ -236,6 +237,32 @@ disabled = false
 format = '[\\[$env_value\\]]($style) '
 style = 'dimmed italic'
 variable = 'WORKSPACE'
+
+# ===== TEAR SESSION (inside a tear pane) =====
+# Set by tear-daemon's `spawn_pty_for` on every child shell it
+# launches: TEAR=1, TEAR_SESSION_ID, TEAR_SESSION_NAME, TEAR_PANE_ID,
+# TEAR_SOCKET. When mado launches in default tear-attached mode (or
+# the operator runs `tear up`), every prompt inside that pane shows
+# a teardrop badge with the session name, immediately visible.
+[env_var.TEAR_SESSION_NAME]
+disabled = false
+variable = 'TEAR_SESSION_NAME'
+default = ''
+# Nord frost-3 wave badge: `~ session-name`.
+format = '[~ $env_value]($style) '
+style = 'bold #88C0D0'
+
+# Pane id can be long (UUID-style); truncate to the first 6 chars
+# so multi-pane sessions are distinguishable in the prompt without
+# dominating it. The `when` predicate keeps the segment silent
+# outside tear (no TEAR_PANE_ID = no badge).
+[custom.tear_pane]
+description = "Truncated TEAR_PANE_ID inside a tear pane"
+command = 'printf "%s" "${TEAR_PANE_ID:0:6}"'
+when = '[ -n "$TEAR_PANE_ID" ]'
+format = '[· $output]($style) '
+style = 'dimmed #88C0D0'
+ignore_timeout = true
 
 [shell]
 disabled = true

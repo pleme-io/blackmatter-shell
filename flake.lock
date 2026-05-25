@@ -33,11 +33,11 @@
         "substrate": "substrate"
       },
       "locked": {
-        "lastModified": 1779658086,
-        "narHash": "sha256-OpkrYvk76fTQMguqm9LoXGd8vMIUXwj7gjmYDoC7zdI=",
+        "lastModified": 1779664445,
+        "narHash": "sha256-j2MofqMVxJY9HtU0wy6NxgPCJs76iIGi1CezLUfTIVY=",
         "owner": "pleme-io",
         "repo": "blx",
-        "rev": "bef94b5511a33b1fe2e5df611b7ae6d3c6708b7e",
+        "rev": "ab8ebb422e9ccbda8ad0afa5caf5819a7476e245",
         "type": "github"
       },
       "original": {
@@ -58,11 +58,11 @@
         "substrate": "substrate_2"
       },
       "locked": {
-        "lastModified": 1779658158,
-        "narHash": "sha256-quOS1jz2vhRuvePVErg5gWWLS79VjpiiR0uvTDGoozo=",
+        "lastModified": 1779664474,
+        "narHash": "sha256-KAcmzKeVz51laghQI1hTEd8H8DExsVYLnBinUhbzLns=",
         "owner": "pleme-io",
         "repo": "bm-guard",
-        "rev": "09fae426f70481db935eba6907daa2692dec6f2a",
+        "rev": "184e8d803c7fccaa7d12a118a80835f3e3220a48",
         "type": "github"
       },
       "original": {
@@ -5380,11 +5380,11 @@
         "substrate": "substrate_3"
       },
       "locked": {
-        "lastModified": 1779661704,
-        "narHash": "sha256-hQF0ahmLLSMfNFmaJhivncBtxcCPBIc3ocIoXTpAeJI=",
+        "lastModified": 1779667194,
+        "narHash": "sha256-NPa0JOOcnfPHCpJbReNqR+cqMWbjwou6c7oUZRbcAy8=",
         "owner": "pleme-io",
         "repo": "skim-tab",
-        "rev": "216b40821241c878766dd26e24819ff52a6e051b",
+        "rev": "61a6d7c57dc0a4f3337566b3d4120a48f2806ff8",
         "type": "github"
       },
       "original": {
@@ -5408,11 +5408,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1779511605,
-        "narHash": "sha256-x3IdbOIvJhLB4+03t9ndU2se/mp1O7slmmknE3BhdTQ=",
+        "lastModified": 1779661764,
+        "narHash": "sha256-EhdkpLScI/OxfWb4Pz9BQKXIhdJCcylwnoHUg5ZTpC8=",
         "owner": "pleme-io",
         "repo": "substrate",
-        "rev": "cc759c77165bda80ca98fd59a4de0c9f2e9f7d6d",
+        "rev": "e87794a7d28bbad2910987448e39fc711511c472",
         "type": "github"
       },
       "original": {
@@ -5436,11 +5436,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1779511605,
-        "narHash": "sha256-x3IdbOIvJhLB4+03t9ndU2se/mp1O7slmmknE3BhdTQ=",
+        "lastModified": 1779661764,
+        "narHash": "sha256-EhdkpLScI/OxfWb4Pz9BQKXIhdJCcylwnoHUg5ZTpC8=",
         "owner": "pleme-io",
         "repo": "substrate",
-        "rev": "cc759c77165bda80ca98fd59a4de0c9f2e9f7d6d",
+        "rev": "e87794a7d28bbad2910987448e39fc711511c472",
         "type": "github"
       },
       "original": {
@@ -5464,11 +5464,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1779511605,
-        "narHash": "sha256-x3IdbOIvJhLB4+03t9ndU2se/mp1O7slmmknE3BhdTQ=",
+        "lastModified": 1779661764,
+        "narHash": "sha256-EhdkpLScI/OxfWb4Pz9BQKXIhdJCcylwnoHUg5ZTpC8=",
         "owner": "pleme-io",
         "repo": "substrate",
-        "rev": "cc759c77165bda80ca98fd59a4de0c9f2e9f7d6d",
+        "rev": "e87794a7d28bbad2910987448e39fc711511c472",
         "type": "github"
       },
       "original": {

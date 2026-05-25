@@ -23,6 +23,25 @@ _should_add_space() {
   (( ! is_dir )) && [[ -z $suffix ]] && [[ $rbuffer != ' '* ]]
 }
 
+# Mirror of the skim-query stem selection in -stc-complete. The skim
+# query MUST be the basename stem zsh matched candidates against — never
+# the path-prefixed outer word. Regression guard for the "cd ../foo<TAB>
+# completes nothing" bug: the outer $PREFIX is the full word ("../foo"),
+# but candidates are basenames ("foobar"), so a "^../foo" query matches
+# nothing. The hook records the split stem as qprefix ("foo").
+# Args: qprefix (hook-captured) prefix (outer) lbuffer_word (${LBUFFER##* }).
+_query_stem() {
+  local qprefix=$1 prefix=$2 lbuffer_word=$3 raw
+  if [[ -n $qprefix ]]; then
+    raw=$qprefix
+  elif [[ -n $prefix ]]; then
+    raw=${prefix##*/}
+  else
+    raw=${lbuffer_word##*/}
+  fi
+  print -r -- "^${raw}"
+}
+
 # ── Unit tests: trailing-space decision matrix ───────────────────────
 
 echo "=== Unit Tests: trailing-space logic (8 cases) ==="
@@ -91,10 +110,47 @@ _test_start "cursor mid-path (SUFFIX='de/github')"
 _test_start "cursor mid-flag (SUFFIX='space')"
 ! _should_add_space 0 'space' 'space' && _test_pass || _test_fail "expected no space"
 
+# ── Unit tests: skim-query stem / path-prefix completion ─────────────
+# Regression for "cd ../foo<TAB> (and any path-prefixed word) completes
+# nothing while cd foo<TAB> works." Root cause: query built from the
+# OUTER $PREFIX ("../foo") instead of the stem zsh matched candidates
+# against ("foo"). Fix: prefer the hook-captured qprefix; strip the path
+# prefix in the fallbacks so "../" can never leak into a ^-anchored query.
+
+echo ""
+echo "=== Unit Tests: skim-query stem / path prefix (9 cases) ==="
+
+_test_start "cd foo (same-dir) → ^foo"
+[[ $(_query_stem foo foo foo) == '^foo' ]] && _test_pass || _test_fail "got '$(_query_stem foo foo foo)'"
+
+_test_start "cd ../foo → ^foo (THE BUG: was ^../foo)"
+[[ $(_query_stem foo ../foo ../foo) == '^foo' ]] && _test_pass || _test_fail "got '$(_query_stem foo ../foo ../foo)'"
+
+_test_start "cd ../../foo (nested) → ^foo"
+[[ $(_query_stem foo ../../foo ../../foo) == '^foo' ]] && _test_pass || _test_fail "got '$(_query_stem foo ../../foo ../../foo)'"
+
+_test_start "cd ../../parent/foo (deep segment) → ^foo"
+[[ $(_query_stem foo ../../parent/foo ../../parent/foo) == '^foo' ]] && _test_pass || _test_fail "got '$(_query_stem foo ../../parent/foo ../../parent/foo)'"
+
+_test_start "qprefix empty + path PREFIX → strip to basename"
+[[ $(_query_stem '' ../foo ../foo) == '^foo' ]] && _test_pass || _test_fail "got '$(_query_stem '' ../foo ../foo)'"
+
+_test_start "qprefix empty + absolute PREFIX (/usr/lo) → ^lo"
+[[ $(_query_stem '' /usr/lo /usr/lo) == '^lo' ]] && _test_pass || _test_fail "got '$(_query_stem '' /usr/lo /usr/lo)'"
+
+_test_start "qprefix empty + PREFIX empty → strip LBUFFER word"
+[[ $(_query_stem '' '' src/ba) == '^ba' ]] && _test_pass || _test_fail "got '$(_query_stem '' '' src/ba)'"
+
+_test_start "query never contains a slash for path-prefixed word"
+[[ $(_query_stem foo ../../x/foo ../../x/foo) != *'/'* ]] && _test_pass || _test_fail "slash leaked"
+
+_test_start "qprefix wins over outer PREFIX (no-split branch)"
+[[ $(_query_stem 'feature/ba' 'feature/ba' 'feature/ba') == '^feature/ba' ]] && _test_pass || _test_fail "got '$(_query_stem feature/ba feature/ba feature/ba)'"
+
 # ── Structural tests: init.zsh invariants ────────────────────────────
 
 echo ""
-echo "=== Structural Tests: init.zsh invariants (8 checks) ==="
+echo "=== Structural Tests: init.zsh invariants (12 checks) ==="
 
 local init_file="${0:A:h}/../module/plugins/skim-rs/skim-tab-complete/config/init.zsh"
 
@@ -139,6 +195,23 @@ if [[ -n $init_file ]]; then
   _test_start "comment says 8 fields (not 7)"
   grep -q '8 fields per line' "$init_file" && _test_pass \
     || _test_fail "comment still says 7 fields"
+
+  # ── path-prefix query fix (cd ../foo<TAB>) ──
+  _test_start "hook records split stem into _stc_qprefix"
+  grep -q '_stc_qprefix=\$PREFIX' "$init_file" && _test_pass \
+    || _test_fail "hook does not set _stc_qprefix=\$PREFIX"
+
+  _test_start "query builder prefers _stc_qprefix"
+  grep -q 'if \[\[ -n \$_stc_qprefix \]\]' "$init_file" && _test_pass \
+    || _test_fail "query no longer seeded from _stc_qprefix"
+
+  _test_start "query fallback strips path prefix (no ../ leak)"
+  grep -q 'PREFIX##\*/' "$init_file" && _test_pass \
+    || _test_fail "fallback does not strip path prefix with ##*/"
+
+  _test_start "_stc_qprefix reset each completion"
+  grep -q "_stc_qprefix=''" "$init_file" && _test_pass \
+    || _test_fail "_stc_qprefix not reset in -stc-complete"
 fi
 
 # ── Configuration tests: zsh options ─────────────────────────────────

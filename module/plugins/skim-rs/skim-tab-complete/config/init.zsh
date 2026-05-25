@@ -19,6 +19,7 @@ typeset -ga _stc_compcap=()
 typeset -ga _stc_groups=()
 typeset -g  _stc_curcontext=''
 typeset -g  _stc_query=''
+typeset -g  _stc_qprefix=''
 typeset -g  _stc_buffer=''
 typeset -g  _stc_response=''
 typeset -gi IN_SKIM_TAB=0
@@ -53,6 +54,14 @@ typeset -gi IN_SKIM_TAB=0
     printf 'hook: PREFIX=%q IPREFIX=%q hits=%d\n' "$PREFIX" "$IPREFIX" "$#__hits" >> /tmp/stc-debug.log
   fi
   (( $#__hits )) || return $ret
+
+  # Record the prefix zsh matched these candidates against. After
+  # _main_complete returns, the outer $PREFIX is restored to the full
+  # unsplit word (e.g. "../al"), which no longer aligns with the captured
+  # candidate words (basenames like "alpha"). $PREFIX *here* is the split
+  # stem ("al") — the correct seed for the ^-anchored skim query. See
+  # the query builder in -stc-complete.
+  _stc_qprefix=$PREFIX
 
   expl=$expl[2]
   [[ -n $expl ]] && _stc_groups+=$expl
@@ -90,6 +99,7 @@ typeset -gi IN_SKIM_TAB=0
 -stc-complete() {
   local -Ua _stc_groups
   _stc_compcap=()
+  _stc_qprefix=''
 
   COLUMNS=500 _stc__main_complete "$@"
 
@@ -97,19 +107,37 @@ typeset -gi IN_SKIM_TAB=0
   # Native fallback (IN_SKIM_TAB=0) lets zsh handle display.
   if (( IN_SKIM_TAB )); then
     emulate -L zsh -o extended_glob
-    # Build query from the user's actual typed text.
+    # Build the query from the stem zsh actually matched candidates against.
+    #
+    # The compadd hook records that stem as $_stc_qprefix at capture time.
+    # For a path-prefixed word like "cd ../al", zsh splits the leading
+    # "../" into IPREFIX and matches candidates (basenames such as "alpha")
+    # against PREFIX="al" — so $_stc_qprefix is "al". The OUTER $PREFIX here
+    # has been restored by _main_complete to the full, unsplit word "../al",
+    # which does NOT align with the captured basename candidates: a query of
+    # "^../al" matches nothing, so path-prefixed completion silently fails
+    # (cd ../x, cd ../../x, cd ~/p/x, cd /usr/x, vim src/x, …). Seeding from
+    # $_stc_qprefix fixes every such case and is identical to the old
+    # behaviour for words with no path prefix.
+    #
+    # Fallback order (hook never set _stc_qprefix → there were no candidates
+    # → skim won't run, so this only guards against a stray value): use the
+    # outer stem, but strip any path prefix so "../" can never leak in.
+    #
     # Prepend ^ for skim prefix matching — "a" becomes "^a" so only
     # candidates STARTING with "a" appear (not all containing "a").
     # Users can delete the ^ in the skim picker to switch to fuzzy mode.
     local _raw_query
-    if [[ -n $PREFIX ]]; then
-      _raw_query=$PREFIX
+    if [[ -n $_stc_qprefix ]]; then
+      _raw_query=$_stc_qprefix
+    elif [[ -n $PREFIX ]]; then
+      _raw_query=${PREFIX##*/}
     else
-      _raw_query=${LBUFFER##* }
+      _raw_query=${${LBUFFER##* }##*/}
     fi
     _stc_query="^${_raw_query}"
     if (( ${+STC_DEBUG} )); then
-      printf 'capture: PREFIX=%q LBUFFER_word=%q query=%q compcap=%d\n' "$PREFIX" "${LBUFFER##* }" "$_stc_query" "$#_stc_compcap" >> /tmp/stc-debug.log
+      printf 'capture: PREFIX=%q qprefix=%q LBUFFER_word=%q query=%q compcap=%d\n' "$PREFIX" "$_stc_qprefix" "${LBUFFER##* }" "$_stc_query" "$#_stc_compcap" >> /tmp/stc-debug.log
     fi
     compstate[list]=
     compstate[insert]=

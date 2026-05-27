@@ -33,11 +33,11 @@
         "substrate": "substrate"
       },
       "locked": {
-        "lastModified": 1779882496,
-        "narHash": "sha256-RxzfskrGI4zkfRaCPaspp+lzZijj9WXgajSGi5IrxLs=",
+        "lastModified": 1779884692,
+        "narHash": "sha256-IczqOwS5YQ+A4v4h1yEP33QVyzk7U3kiZAsNf3WdrT4=",
         "owner": "pleme-io",
         "repo": "blx",
-        "rev": "58571f304b86a8f3a2c2ec4ec124235874d3b8b5",
+        "rev": "1bf574e678c5ef4dad3baf0f6652d9890e840042",
         "type": "github"
       },
       "original": {
@@ -58,11 +58,11 @@
         "substrate": "substrate_3"
       },
       "locked": {
-        "lastModified": 1779882505,
-        "narHash": "sha256-lAiRrzy2L5ymLNrsZdn8YUYTr6cR8HPtZ3hNKlACt+c=",
+        "lastModified": 1779884720,
+        "narHash": "sha256-THSgPn/bxhy5LV4dUNJ1Wi1DFod8hG22i0Lwh9GJ4CE=",
         "owner": "pleme-io",
         "repo": "bm-guard",
-        "rev": "084ec64f9e340e0fe46040d49cfa43021cc9fa04",
+        "rev": "2cee07c91be9aea637b0ff2dc3370964fd835cc0",
         "type": "github"
       },
       "original": {
@@ -2637,11 +2637,11 @@
         "rust-analyzer-src": "rust-analyzer-src"
       },
       "locked": {
-        "lastModified": 1779790483,
-        "narHash": "sha256-2wCMtmVmkCcyHaH6hkrbx7XdUgLYP5E1wl/jc1YxxTY=",
+        "lastModified": 1779876442,
+        "narHash": "sha256-O25HomVNmdROO13PEQ3Ran8Hq5EsyLmVn8Gb8JvJtJE=",
         "owner": "nix-community",
         "repo": "fenix",
-        "rev": "6012e5463531342033571efe294ec880bf13dd95",
+        "rev": "2eff81fc84390a35e1565395ae945d9394856824",
         "type": "github"
       },
       "original": {
@@ -2684,11 +2684,11 @@
         "rust-analyzer-src": "rust-analyzer-src_3"
       },
       "locked": {
-        "lastModified": 1779790483,
-        "narHash": "sha256-2wCMtmVmkCcyHaH6hkrbx7XdUgLYP5E1wl/jc1YxxTY=",
+        "lastModified": 1779876442,
+        "narHash": "sha256-O25HomVNmdROO13PEQ3Ran8Hq5EsyLmVn8Gb8JvJtJE=",
         "owner": "nix-community",
         "repo": "fenix",
-        "rev": "6012e5463531342033571efe294ec880bf13dd95",
+        "rev": "2eff81fc84390a35e1565395ae945d9394856824",
         "type": "github"
       },
       "original": {
@@ -2731,11 +2731,11 @@
         "rust-analyzer-src": "rust-analyzer-src_5"
       },
       "locked": {
-        "lastModified": 1779790483,
-        "narHash": "sha256-2wCMtmVmkCcyHaH6hkrbx7XdUgLYP5E1wl/jc1YxxTY=",
+        "lastModified": 1779876442,
+        "narHash": "sha256-O25HomVNmdROO13PEQ3Ran8Hq5EsyLmVn8Gb8JvJtJE=",
         "owner": "nix-community",
         "repo": "fenix",
-        "rev": "6012e5463531342033571efe294ec880bf13dd95",
+        "rev": "2eff81fc84390a35e1565395ae945d9394856824",
         "type": "github"
       },
       "original": {
@@ -9324,11 +9324,11 @@
     "rust-analyzer-src": {
       "flake": false,
       "locked": {
-        "lastModified": 1779742949,
-        "narHash": "sha256-Dk0hnFTXbmNmigsJyQkCz2NEEgtpe+MN500dPnki9Ic=",
+        "lastModified": 1779827300,
+        "narHash": "sha256-J6pHxKoZzWCrAvOVInwBcYYWix/NWwM10Ad+i29Qc5s=",
         "owner": "rust-lang",
         "repo": "rust-analyzer",
-        "rev": "462d95ca60fa7360b44258be94105bc20e203684",
+        "rev": "c3af07ad84d68adc5e652e86f0c20009caa29014",
         "type": "github"
       },
       "original": {
@@ -9358,11 +9358,11 @@
     "rust-analyzer-src_3": {
       "flake": false,
       "locked": {
-        "lastModified": 1779742949,
-        "narHash": "sha256-Dk0hnFTXbmNmigsJyQkCz2NEEgtpe+MN500dPnki9Ic=",
+        "lastModified": 1779827300,
+        "narHash": "sha256-J6pHxKoZzWCrAvOVInwBcYYWix/NWwM10Ad+i29Qc5s=",
         "owner": "rust-lang",
         "repo": "rust-analyzer",
-        "rev": "462d95ca60fa7360b44258be94105bc20e203684",
+        "rev": "c3af07ad84d68adc5e652e86f0c20009caa29014",
         "type": "github"
       },
       "original": {
@@ -9392,11 +9392,11 @@
     "rust-analyzer-src_5": {
       "flake": false,
       "locked": {
-        "lastModified": 1779742949,
-        "narHash": "sha256-Dk0hnFTXbmNmigsJyQkCz2NEEgtpe+MN500dPnki9Ic=",
+        "lastModified": 1779827300,
+        "narHash": "sha256-J6pHxKoZzWCrAvOVInwBcYYWix/NWwM10Ad+i29Qc5s=",
         "owner": "rust-lang",
         "repo": "rust-analyzer",
-        "rev": "462d95ca60fa7360b44258be94105bc20e203684",
+        "rev": "c3af07ad84d68adc5e652e86f0c20009caa29014",
         "type": "github"
       },
       "original": {
@@ -9688,11 +9688,11 @@
         "substrate": "substrate_5"
       },
       "locked": {
-        "lastModified": 1779882163,
-        "narHash": "sha256-tBKDCr/JzFxK4ov3q4oKE6+dUkzuNhYlHk5X3XWna0s=",
+        "lastModified": 1779888393,
+        "narHash": "sha256-lC8374zjb8+x3/mBRL9IgfVnMjaFebIx8c+mUt1TaGA=",
         "owner": "pleme-io",
         "repo": "skim-tab",
-        "rev": "b7bb21fa56ddb95f8492a7c838961d9f2af237ea",
+        "rev": "6de06ff23d2aaf7f50d4388205ef3ba11daa07ef",
         "type": "github"
       },
       "original": {
@@ -9718,11 +9718,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1779878290,
-        "narHash": "sha256-LUNAzm0IZhKukJ6EDmTH/RBJGWwLet2C0vj3GO7WrZU=",
+        "lastModified": 1779883611,
+        "narHash": "sha256-sjAy6TUyc/gIN9uk1bLyVK2A+WIap2Qt2feAXVTJGmo=",
         "owner": "pleme-io",
         "repo": "substrate",
-        "rev": "77f2688165dc8ba44d568e24776e2ca21dc655b3",
+        "rev": "f2a05590584fb8d2ddb09a7b1afab06f2e28277b",
         "type": "github"
       },
       "original": {
@@ -9775,11 +9775,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1779878290,
-        "narHash": "sha256-LUNAzm0IZhKukJ6EDmTH/RBJGWwLet2C0vj3GO7WrZU=",
+        "lastModified": 1779883611,
+        "narHash": "sha256-sjAy6TUyc/gIN9uk1bLyVK2A+WIap2Qt2feAXVTJGmo=",
         "owner": "pleme-io",
         "repo": "substrate",
-        "rev": "77f2688165dc8ba44d568e24776e2ca21dc655b3",
+        "rev": "f2a05590584fb8d2ddb09a7b1afab06f2e28277b",
         "type": "github"
       },
       "original": {
@@ -9832,11 +9832,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1779878290,
-        "narHash": "sha256-LUNAzm0IZhKukJ6EDmTH/RBJGWwLet2C0vj3GO7WrZU=",
+        "lastModified": 1779883611,
+        "narHash": "sha256-sjAy6TUyc/gIN9uk1bLyVK2A+WIap2Qt2feAXVTJGmo=",
         "owner": "pleme-io",
         "repo": "substrate",
-        "rev": "77f2688165dc8ba44d568e24776e2ca21dc655b3",
+        "rev": "f2a05590584fb8d2ddb09a7b1afab06f2e28277b",
         "type": "github"
       },
       "original": {

@@ -3766,11 +3766,11 @@
         "substrate": "substrate_3"
       },
       "locked": {
-        "lastModified": 1780432345,
-        "narHash": "sha256-z2vEJ32O222BRi7Zw5qBm5QZjMOe8dz/Hou/MIAfuF8=",
+        "lastModified": 1780479111,
+        "narHash": "sha256-mvP3KDOd8l4mNen8Wfd1wfQD+Inh9bcE51T62nsqnS4=",
         "owner": "pleme-io",
         "repo": "skim-tab",
-        "rev": "067f24e59faffe00cbd65b51b10c09b6e330dca0",
+        "rev": "50001209703329fa87bf33dc5c416e1eaa4b2b4f",
         "type": "github"
       },
       "original": {
